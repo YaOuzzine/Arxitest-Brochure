@@ -220,7 +220,7 @@ Thank you!`,
                     <div>
                       <h3 className="text-2xl font-bold text-foreground mb-2">Request Your Demo</h3>
                       <p className="text-foreground-muted">
-                        Enter your email address and we&apos;ll reach out to schedule your personalized Arxitest demonstration.
+                        Enter your email address and we will reach out to schedule your personalized Arxitest demonstration.
                       </p>
                     </div>
                   </div>

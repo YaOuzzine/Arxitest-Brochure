@@ -355,7 +355,7 @@ const DashboardDemo: React.FC = () => {
       id: 'complete',
       target: '',
       title: 'Congratulations! 🎉',
-      description: 'You&apos;ve completed the full Arxitest workflow: Team → Project → Story → Test Case → Test Suite → Execution. Continue exploring with full functionality!',
+      description: 'You have completed the full Arxitest workflow: Team → Project → Story → Test Case → Test Suite → Execution. Continue exploring with full functionality!',
       action: 'observe',
       nextStep: '',
       allowedActions: ['*']
