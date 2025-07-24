@@ -2,12 +2,12 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  Users, 
-  FolderOpen, 
-  BookOpen, 
-  FileText, 
-  Layers, 
+import {
+  Users,
+  FolderOpen,
+  BookOpen,
+  FileText,
+  Layers,
   Play,
   Plus,
   Github,
@@ -149,28 +149,28 @@ const DashboardDemo: React.FC = () => {
   const [showStoryCreationModal, setShowStoryCreationModal] = useState(false);
   const [showTestCaseCreationModal, setShowTestCaseCreationModal] = useState(false);
   const [isGuideComplete, setIsGuideComplete] = useState(false);
-  
+
   // Team creation modal state
   const [teamName, setTeamName] = useState('');
-  
+
   // Project creation modal state
   const [projectName, setProjectName] = useState('');
   const [projectType, setProjectType] = useState<'manual' | 'github' | 'jira' | 'taiga'>('manual');
   const [isCreatingProject, setIsCreatingProject] = useState(false);
-  
+
   // Story creation modal state
   const [storyTitle, setStoryTitle] = useState('');
   const [storyDescription, setStoryDescription] = useState('');
   const [storyPriority, setStoryPriority] = useState<'high' | 'medium' | 'low'>('medium');
   const [isGeneratingStory, setIsGeneratingStory] = useState(false);
-  
+
   // Test case creation modal state
   const [testCaseName, setTestCaseName] = useState('');
   const [testCaseDescription, setTestCaseDescription] = useState('');
   const [testFramework, setTestFramework] = useState<'selenium' | 'playwright' | 'cypress'>('playwright');
   const [selectedStoryId, setSelectedStoryId] = useState('');
   const [isGeneratingTestCase, setIsGeneratingTestCase] = useState(false);
-  
+
   const [teams, setTeams] = useState<Team[]>([
     { id: '1', name: 'Frontend Team', members: 5, color: 'primary' },
     { id: '2', name: 'Backend Team', members: 3, color: 'secondary' }
@@ -248,11 +248,11 @@ const DashboardDemo: React.FC = () => {
     },
     'select-project': {
       id: 'select-project',
-      target: 'project-card',
+      target: 'project-list-container',
       title: 'Select Your Project',
-      description: 'Great! Now click on your newly created project to select it.',
+      description: 'Great! Now click on any project in the list to view its details and proceed.',
       action: 'click',
-      highlightElement: 'project-card',
+      highlightElement: 'project-list-container',
       nextStep: 'view-stories',
       allowedActions: ['project-card-*']
     },
@@ -525,7 +525,7 @@ const DashboardDemo: React.FC = () => {
       const status = generateRandomTestResult() as 'passed' | 'failed' | 'skipped';
       const duration = `${(Math.random() * 5 + 0.5).toFixed(1)}s`;
       const name = testCaseNames[index] || `Test Case ${index + 1}`;
-      
+
       return {
         name,
         status,
@@ -556,32 +556,50 @@ const DashboardDemo: React.FC = () => {
   const isActionAllowed = (actionId: string) => {
     if (isGuideComplete) return true;
     if (!currentStep || !currentStep.allowedActions) return false;
-    return currentStep.allowedActions.includes(actionId) || currentStep.allowedActions.includes('*');
+
+    // Check for global wildcard or specific action/pattern
+    return currentStep.allowedActions.some(allowed => {
+      if (allowed === '*') return true;
+      if (allowed.endsWith('*')) {
+        return actionId.startsWith(allowed.slice(0, -1));
+      }
+      return actionId === allowed;
+    });
   };
 
   const [tooltipPosition, setTooltipPosition] = useState({ top: 20, left: 20 });
 
-  useEffect(() => {
+    useEffect(() => {
     if (currentGuideStep === 'complete' || !currentStep.highlightElement) return;
 
     const updateTooltipPosition = () => {
       const elementId = currentStep.highlightElement;
       if (!elementId) return;
       
+      const dashboardContainer = document.querySelector('.h-\\[600px\\]');
+      if (!dashboardContainer) return;
+      const containerRect = dashboardContainer.getBoundingClientRect();
+
+      // Add special positioning for the project list step
+      if (elementId === 'project-list-container') {
+        setTooltipPosition({
+          top: containerRect.height / 2 - 80, // Adjust to center vertically
+          left: containerRect.width / 2 - 150, // Adjust to center horizontally
+        });
+        return;
+      }
+      
       const element = document.getElementById(elementId);
       if (!element) return;
       
       const rect = element.getBoundingClientRect();
-      const dashboardContainer = element.closest('.h-\\[600px\\]');
-      const containerRect = dashboardContainer ? dashboardContainer.getBoundingClientRect() : { top: 0, left: 0 };
       
       setTooltipPosition({
-        top: rect.top - containerRect.top - 40, // Position well above the element relative to container
-        left: rect.left - containerRect.left + (rect.width / 2) - 150, // Center horizontally relative to container
+        top: rect.top - containerRect.top - 40,
+        left: rect.left - containerRect.left + (rect.width / 2) - 150,
       });
     };
 
-    // Update position after a small delay to ensure element is rendered
     const timeoutId = setTimeout(updateTooltipPosition, 100);
     
     return () => clearTimeout(timeoutId);
@@ -593,9 +611,9 @@ const DashboardDemo: React.FC = () => {
     return (
       <motion.div
         initial={{ opacity: 0, y: -20, scale: 0.9 }}
-        animate={{ 
-          opacity: 1, 
-          y: [0, -5, 0], 
+        animate={{
+          opacity: 1,
+          y: [0, -5, 0],
           scale: 1,
           transition: {
             y: {
@@ -608,7 +626,7 @@ const DashboardDemo: React.FC = () => {
           }
         }}
         className="absolute bg-white border border-primary/20 rounded-lg shadow-xl p-4 max-w-sm z-50"
-        style={{ 
+        style={{
           background: theme === 'dark' ? '#1a1a1a' : 'white',
           top: Math.max(10, tooltipPosition.top), // Ensure it doesn't go off-screen
           left: Math.max(10, tooltipPosition.left),
@@ -630,17 +648,17 @@ const DashboardDemo: React.FC = () => {
             </div>
           </div>
         </div>
-        
+
         {/* Chevron Down Arrow */}
         <motion.div
           animate={{ y: [0, 3, 0] }}
           transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
           className="absolute -bottom-2 left-1/2 transform -translate-x-1/2"
         >
-          <div className="w-4 h-4 bg-white border-r border-b border-primary/20 transform rotate-45" 
-               style={{ background: theme === 'dark' ? '#1a1a1a' : 'white' }}></div>
+          <div className="w-4 h-4 bg-white border-r border-b border-primary/20 transform rotate-45"
+            style={{ background: theme === 'dark' ? '#1a1a1a' : 'white' }}></div>
         </motion.div>
-        
+
         {/* Additional chevron icon for clarity */}
         <motion.div
           animate={{ y: [0, 2, 0] }}
@@ -689,12 +707,12 @@ const DashboardDemo: React.FC = () => {
             Interactive demo to familiarize users with Arxitest's workflow
           </p>
         </div>
-        
+
         {sidebarItems.map((item) => {
           const Icon = item.icon;
           const isActive = activeSidebar === item.id;
           const isClickable = isActionAllowed(`${item.id}-tab`) || currentGuideStep === 'complete';
-          
+
           return (
             <div key={item.id} className="relative">
               <motion.button
@@ -708,22 +726,20 @@ const DashboardDemo: React.FC = () => {
                     }
                   }
                 }}
-                className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-left transition-colors relative ${
-                  isActive
-                    ? 'bg-primary text-white'
-                    : isClickable
+                className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-left transition-colors relative ${isActive
+                  ? 'bg-primary text-white'
+                  : isClickable
                     ? 'hover:bg-accent/10 text-foreground'
                     : 'text-foreground-muted cursor-not-allowed opacity-50'
-                }`}
+                  }`}
                 disabled={!isClickable}
                 id={`${item.id}-tab`}
               >
                 <Icon className="w-5 h-5" />
                 <span className="flex-1 text-sm font-medium">{item.label}</span>
                 {item.count > 0 && (
-                  <span className={`text-xs px-2 py-1 rounded-full ${
-                    isActive ? 'bg-white/20' : 'bg-accent/20'
-                  }`}>
+                  <span className={`text-xs px-2 py-1 rounded-full ${isActive ? 'bg-white/20' : 'bg-accent/20'
+                    }`}>
                     {item.count}
                   </span>
                 )}
@@ -751,7 +767,7 @@ const DashboardDemo: React.FC = () => {
           />
         </div>
       </div>
-      
+
       <div className="flex items-center space-x-3">
         <div className="relative">
           <button
@@ -765,7 +781,7 @@ const DashboardDemo: React.FC = () => {
               </span>
             )}
           </button>
-          
+
           <AnimatePresence>
             {showNotifications && (
               <motion.div
@@ -791,10 +807,9 @@ const DashboardDemo: React.FC = () => {
                         animate={{ opacity: 1, x: 0 }}
                         className="p-3 border-b border-border last:border-b-0 flex items-start space-x-2"
                       >
-                        <div className={`w-2 h-2 rounded-full mt-2 ${
-                          notification.type === 'success' ? 'bg-green-500' :
+                        <div className={`w-2 h-2 rounded-full mt-2 ${notification.type === 'success' ? 'bg-green-500' :
                           notification.type === 'warning' ? 'bg-yellow-500' : 'bg-blue-500'
-                        }`} />
+                          }`} />
                         <div className="flex-1">
                           <p className="text-sm">{notification.message}</p>
                           <p className="text-xs text-foreground-muted">
@@ -816,37 +831,38 @@ const DashboardDemo: React.FC = () => {
   const renderContent = () => {
     const renderTeams = () => {
       const displayTeams = searchFilter(teams, ['name']);
-      
+
       return (
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <h3 className="text-lg font-semibold">Teams</h3>
-            <Button
-              size="sm"
-              onClick={() => {
-                if (currentStep && currentStep.allowedActions.includes('add-team-button')) {
-                  handleGuideAction('add-team-button');
-                } else {
-                  setShowTeamCreationModal(true);
-                }
-              }}
-              disabled={!isActionAllowed('add-team-button')}
-              id="add-team-button"
-            >
-              <Plus className="w-4 h-4 mr-2" />
-              Add Team
-            </Button>
-            {renderHighlight('add-team-button')}
+            <div className="relative">
+              <Button
+                size="sm"
+                onClick={() => {
+                  if (currentStep && currentStep.allowedActions.includes('add-team-button')) {
+                    handleGuideAction('add-team-button');
+                  } else {
+                    setShowTeamCreationModal(true);
+                  }
+                }}
+                disabled={!isActionAllowed('add-team-button')}
+                id="add-team-button"
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                Add Team
+              </Button>
+              {renderHighlight('add-team-button')}
+            </div>
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {displayTeams.map((team) => (
               <div key={team.id} className="relative">
                 <Card
                   hover
-                  className={`cursor-pointer transition-all ${
-                    selectedTeamId === team.id ? 'ring-2 ring-primary' : ''
-                  } ${!isActionAllowed(`team-card-${team.id}`) && currentGuideStep !== 'complete' ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  className={`cursor-pointer transition-all ${selectedTeamId === team.id ? 'ring-2 ring-primary' : ''
+                    } ${!isActionAllowed(`team-card-${team.id}`) && currentGuideStep !== 'complete' ? 'opacity-50 cursor-not-allowed' : ''}`}
                   onClick={() => isActionAllowed(`team-card-${team.id}`) && (handleGuideAction(`team-card-${team.id}`) || setSelectedTeamId(team.id))}
                   id={`team-card-${team.id}`}
                 >
@@ -880,7 +896,7 @@ const DashboardDemo: React.FC = () => {
       );
     };
 
-    const renderProjects = () => {
+        const renderProjects = () => {
       const displayProjects = searchFilter(filteredProjects, ['name', 'type']);
       
       return (
@@ -889,87 +905,93 @@ const DashboardDemo: React.FC = () => {
             <h3 className="text-lg font-semibold">
               Projects {selectedTeamId && `for ${teams.find(t => t.id === selectedTeamId)?.name}`}
             </h3>
-            <Button
-              size="sm"
-              onClick={() => {
-                if (currentStep && currentStep.allowedActions.includes('add-project-button')) {
-                  handleGuideAction('add-project-button');
-                } else {
-                  setShowProjectCreationModal(true);
-                }
-              }}
-              disabled={!isActionAllowed('add-project-button')}
-              id="add-project-button"
-            >
-              <Plus className="w-4 h-4 mr-2" />
-              Add Project
-            </Button>
-            {renderHighlight('add-project-button')}
+            <div className="relative">
+              <Button
+                size="sm"
+                onClick={() => {
+                  if (currentStep && currentStep.allowedActions.includes('add-project-button')) {
+                    handleGuideAction('add-project-button');
+                  } else {
+                    setShowProjectCreationModal(true);
+                  }
+                }}
+                disabled={!isActionAllowed('add-project-button')}
+                id="add-project-button"
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                Add Project
+              </Button>
+              {renderHighlight('add-project-button')}
+            </div>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {displayProjects.map((project) => {
-              const typeIcons = {
-                github: Github,
-                jira: ExternalLink,
-                arxitest: Sparkles
-              };
-              const Icon = typeIcons[project.type];
-              
-              return (
-                <div key={project.id} className="relative">
-                  <Card
-                    hover
-                    className={`cursor-pointer transition-all group ${
-                      selectedProjectId === project.id ? 'ring-2 ring-primary' : ''
-                    } ${!isActionAllowed(`project-card-${project.id}`) && currentGuideStep !== 'complete' ? 'opacity-50 cursor-not-allowed' : ''}`}
-                    onClick={() => {
-                      if (isActionAllowed(`project-card-${project.id}`)) {
-                        if (currentStep && currentStep.allowedActions.includes('project-card-*')) {
+          <div className="relative" id="project-list-container">
+            {renderHighlight('project-list-container')}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {displayProjects.map((project) => {
+                const typeIcons = {
+                  github: Github,
+                  jira: ExternalLink,
+                  arxitest: Sparkles,
+                  taiga: Target // This is the fix
+                };
+                const Icon = typeIcons[project.type as keyof typeof typeIcons];
+                
+                // Graceful fallback if an icon is ever missing in the future
+                if (!Icon) {
+                  return null; 
+                }
+                
+                return (
+                  <div key={project.id} className="relative">
+                    <Card
+                      hover
+                      className={`cursor-pointer transition-all group ${
+                        selectedProjectId === project.id ? 'ring-2 ring-primary' : ''
+                      } ${!isActionAllowed(`project-card-${project.id}`) ? 'opacity-50 cursor-not-allowed' : ''}`}
+                      onClick={() => {
+                        if (isActionAllowed(`project-card-${project.id}`)) {
                           setSelectedProjectId(project.id);
                           if (currentGuideStep === 'select-project') {
                             setCurrentGuideStep('view-stories');
                           }
-                        } else {
-                          setSelectedProjectId(project.id);
                         }
-                      }
-                    }}
-                    id={`project-card-${project.id}`}
-                  >
-                    <CardContent className="mt-4 p-4">
-                      <div className="flex items-center justify-between mb-3">
-                        <div className="flex items-center space-x-2">
-                          <Icon className="w-5 h-5 text-primary" />
-                          <h4 className="font-medium">{project.name}</h4>
+                      }}
+                      id={`project-card-${project.id}`}
+                    >
+                      <CardContent className="mt-4 p-4">
+                        <div className="flex items-center justify-between mb-3">
+                          <div className="flex items-center space-x-2">
+                            <Icon className="w-5 h-5 text-primary" />
+                            <h4 className="font-medium">{project.name}</h4>
+                          </div>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              deleteItem('project', project.id);
+                            }}
+                            className="opacity-0 group-hover:opacity-100 p-1 hover:bg-red-100 rounded"
+                            disabled={!isActionAllowed('delete')}
+                          >
+                            <Trash2 className="w-4 h-4 text-red-500" />
+                          </button>
                         </div>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            deleteItem('project', project.id);
-                          }}
-                          className="opacity-0 group-hover:opacity-100 p-1 hover:bg-red-100 rounded"
-                          disabled={!isActionAllowed('delete') && currentGuideStep !== 'complete'}
-                        >
-                          <Trash2 className="w-4 h-4 text-red-500" />
-                        </button>
-                      </div>
-                      <div className="grid grid-cols-2 gap-2 text-sm">
-                        <div>
-                          <span className="text-foreground-muted">Stories:</span>
-                          <span className="ml-1 font-medium">{project.stories}</span>
+                        <div className="grid grid-cols-2 gap-2 text-sm">
+                          <div>
+                            <span className="text-foreground-muted">Stories:</span>
+                            <span className="ml-1 font-medium">{project.stories}</span>
+                          </div>
+                          <div>
+                            <span className="text-foreground-muted">Tests:</span>
+                            <span className="ml-1 font-medium">{project.testCases}</span>
+                          </div>
                         </div>
-                        <div>
-                          <span className="text-foreground-muted">Tests:</span>
-                          <span className="ml-1 font-medium">{project.testCases}</span>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                  {renderHighlight(`project-card-${project.id}`)}
-                </div>
-              );
-            })}
+                      </CardContent>
+                    </Card>
+                  </div>
+                );
+              })}
+            </div>
           </div>
         </div>
       );
@@ -977,7 +999,7 @@ const DashboardDemo: React.FC = () => {
 
     const renderStories = () => {
       const displayStories = searchFilter(filteredStories, ['title', 'description']);
-      
+
       return (
         <div className="space-y-4">
           <div className="flex items-center justify-between">
@@ -1005,7 +1027,7 @@ const DashboardDemo: React.FC = () => {
               {renderHighlight('add-story')}
             </div>
           </div>
-          
+
           <div className="space-y-3">
             {displayStories.map((story) => (
               <Card key={story.id} hover className="group">
@@ -1014,11 +1036,10 @@ const DashboardDemo: React.FC = () => {
                     <div className="flex-1">
                       <div className="flex items-center space-x-2 mb-2">
                         <h4 className="font-medium">{story.title}</h4>
-                        <span className={`px-2 py-1 text-xs rounded-full ${
-                          story.priority === 'high' ? 'bg-red-100 text-red-700' :
+                        <span className={`px-2 py-1 text-xs rounded-full ${story.priority === 'high' ? 'bg-red-100 text-red-700' :
                           story.priority === 'medium' ? 'bg-yellow-100 text-yellow-700' :
-                          'bg-green-100 text-green-700'
-                        }`}>
+                            'bg-green-100 text-green-700'
+                          }`}>
                           {story.priority}
                         </span>
                         <span className="text-xs text-foreground-muted">{story.points} pts</span>
@@ -1043,29 +1064,31 @@ const DashboardDemo: React.FC = () => {
 
     const renderTestCases = () => {
       const displayTestCases = searchFilter(filteredTestCases, ['name', 'description', 'framework']);
-      
+
       return (
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <h3 className="text-lg font-semibold">Test Cases</h3>
-            <Button
-              size="sm"
-              onClick={() => {
-                if (currentStep && currentStep.allowedActions.includes('add-testcase-button')) {
-                  handleGuideAction('add-testcase-button');
-                } else {
-                  setShowTestCaseCreationModal(true);
-                }
-              }}
-              disabled={!isActionAllowed('add-testcase-button')}
-              id="add-testcase-button"
-            >
-              <Plus className="w-4 h-4 mr-2" />
-              Add Test Case
-            </Button>
-            {renderHighlight('add-testcase-button')}
+            <div className="relative">
+              <Button
+                size="sm"
+                onClick={() => {
+                  if (currentStep && currentStep.allowedActions.includes('add-testcase-button')) {
+                    handleGuideAction('add-testcase-button');
+                  } else {
+                    setShowTestCaseCreationModal(true);
+                  }
+                }}
+                disabled={!isActionAllowed('add-testcase-button')}
+                id="add-testcase-button"
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                Add Test Case
+              </Button>
+              {renderHighlight('add-testcase-button')}
+            </div>
           </div>
-          
+
           <div className="space-y-3">
             {displayTestCases.map((testCase) => (
               <Card key={testCase.id} hover className="group">
@@ -1074,10 +1097,9 @@ const DashboardDemo: React.FC = () => {
                     <div className="flex-1">
                       <div className="flex items-center space-x-2 mb-2">
                         <h4 className="font-medium">{testCase.name}</h4>
-                        <span className={`w-2 h-2 rounded-full ${
-                          testCase.status === 'passed' ? 'bg-green-500' :
+                        <span className={`w-2 h-2 rounded-full ${testCase.status === 'passed' ? 'bg-green-500' :
                           testCase.status === 'failed' ? 'bg-red-500' : 'bg-yellow-500'
-                        }`} />
+                          }`} />
                         <span className="text-xs bg-accent/20 px-2 py-1 rounded">
                           {testCase.framework}
                         </span>
@@ -1102,87 +1124,82 @@ const DashboardDemo: React.FC = () => {
 
     const renderTestSuites = () => {
       const displayTestSuites = searchFilter(filteredTestSuites, ['name', 'description']);
-      
+
       return (
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <h3 className="text-lg font-semibold">Test Suites</h3>
-            <Button
-              size="sm"
-              onClick={() => {
-                const newTestSuite: TestSuite = {
-                  id: Date.now().toString(),
-                  name: `Test Suite ${testSuites.length + 1}`,
-                  description: 'Automated test suite',
-                  testCases: [],
-                  projectId: selectedProjectId || '1',
-                  status: 'active'
-                };
-                setTestSuites(prev => [...prev, newTestSuite]);
-                addNotification(`Test suite "${newTestSuite.name}" created successfully!`);
-                
-                // Progress guide if in create-test-suite step
-                if (currentGuideStep === 'create-test-suite') {
-                  setCurrentGuideStep('select-test-suite');
-                }
-              }}
-              disabled={!isActionAllowed('add-testsuite-button') && currentGuideStep !== 'complete'}
-              id="add-testsuite-button"
-            >
-              <Plus className="w-4 h-4 mr-2" />
-              Add Test Suite
-            </Button>
-            {renderHighlight('add-testsuite-button')}
+            <div className="relative">
+              <Button
+                size="sm"
+                onClick={() => {
+                  const newTestSuite: TestSuite = {
+                    id: Date.now().toString(),
+                    name: `Test Suite ${testSuites.length + 1}`,
+                    description: 'Automated test suite',
+                    testCases: [],
+                    projectId: selectedProjectId || '1',
+                    status: 'active'
+                  };
+                  setTestSuites(prev => [...prev, newTestSuite]);
+                  addNotification(`Test suite "${newTestSuite.name}" created successfully!`);
+
+                  if (currentGuideStep === 'create-test-suite') {
+                    setCurrentGuideStep('select-test-suite');
+                  }
+                }}
+                disabled={!isActionAllowed('add-testsuite-button') && currentGuideStep !== 'complete'}
+                id="add-testsuite-button"
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                Add Test Suite
+              </Button>
+              {renderHighlight('add-testsuite-button')}
+            </div>
           </div>
-          
+
           <div className="space-y-3">
             {displayTestSuites.map((suite) => (
               <div key={suite.id} className="relative">
-                <Card 
-                  hover 
-                  className={`cursor-pointer transition-all group ${
-                    selectedTestSuiteId === suite.id ? 'ring-2 ring-primary' : ''
-                  } ${!isActionAllowed(`testsuite-card-${suite.id}`) && currentGuideStep !== 'complete' ? 'opacity-50 cursor-not-allowed' : ''}`}
+                <Card
+                  hover
+                  className={`cursor-pointer transition-all group ${selectedTestSuiteId === suite.id ? 'ring-2 ring-primary' : ''
+                    } ${!isActionAllowed(`testsuite-card-${suite.id}`) && currentGuideStep !== 'complete' ? 'opacity-50 cursor-not-allowed' : ''}`}
                   onClick={() => {
                     if (isActionAllowed(`testsuite-card-${suite.id}`)) {
-                      if (currentStep && currentStep.allowedActions.includes('testsuite-card-*')) {
-                        setSelectedTestSuiteId(suite.id);
-                        if (currentGuideStep === 'select-test-suite') {
-                          setCurrentGuideStep('run-tests');
-                        }
-                      } else {
-                        setSelectedTestSuiteId(suite.id);
+                      setSelectedTestSuiteId(suite.id);
+                      if (currentGuideStep === 'select-test-suite') {
+                        setCurrentGuideStep('run-tests');
                       }
                     }
                   }}
                   id={`testsuite-card-${suite.id}`}
                 >
                   <CardContent className="mt-4 p-4">
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <div className="flex items-center space-x-2 mb-2">
-                        <h4 className="font-medium">{suite.name}</h4>
-                        <span className={`w-2 h-2 rounded-full ${
-                          suite.status === 'active' ? 'bg-green-500' : 'bg-gray-400'
-                        }`} />
-                        <span className="text-xs text-foreground-muted">
-                          {suite.testCases.length} test cases
-                        </span>
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <div className="flex items-center space-x-2 mb-2">
+                          <h4 className="font-medium">{suite.name}</h4>
+                          <span className={`w-2 h-2 rounded-full ${suite.status === 'active' ? 'bg-green-500' : 'bg-gray-400'
+                            }`} />
+                          <span className="text-xs text-foreground-muted">
+                            {suite.testCases.length} test cases
+                          </span>
+                        </div>
+                        <p className="text-sm text-foreground-muted">{suite.description}</p>
                       </div>
-                      <p className="text-sm text-foreground-muted">{suite.description}</p>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          deleteItem('testsuite', suite.id);
+                        }}
+                        className="opacity-0 group-hover:opacity-100 p-1 hover:bg-red-100 rounded"
+                        disabled={!isActionAllowed('delete') && currentGuideStep !== 'complete'}
+                      >
+                        <Trash2 className="w-4 h-4 text-red-500" />
+                      </button>
                     </div>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        deleteItem('testsuite', suite.id);
-                      }}
-                      className="opacity-0 group-hover:opacity-100 p-1 hover:bg-red-100 rounded"
-                      disabled={!isActionAllowed('delete') && currentGuideStep !== 'complete'}
-                    >
-                      <Trash2 className="w-4 h-4 text-red-500" />
-                    </button>
-                  </div>
-                </CardContent>
+                  </CardContent>
                 </Card>
                 {renderHighlight(`testsuite-card-${suite.id}`)}
               </div>
@@ -1194,63 +1211,65 @@ const DashboardDemo: React.FC = () => {
 
     const renderExecutions = () => {
       const displayExecutions = searchFilter(filteredExecutions, ['name']);
-      
+
       return (
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <h3 className="text-lg font-semibold">Test Executions</h3>
-            <Button
-              size="sm"
-              onClick={() => {
-                const totalTests = Math.floor(Math.random() * 20) + 5;
-                const newExecution: TestExecution = {
-                  id: Date.now().toString(),
-                  name: `Execution ${executions.length + 1}`,
-                  testCases: totalTests,
-                  status: 'running',
-                  passed: 0,
-                  failed: 0,
-                  duration: '0m',
-                  projectId: selectedProjectId || '1'
-                };
-                setExecutions(prev => [...prev, newExecution]);
-                addNotification(`Test execution "${newExecution.name}" started!`);
-                
-                // Simulate execution completion with random results
-                setTimeout(() => {
-                  const passed = Math.floor(totalTests * (0.33 + Math.random() * 0.4)); // 33-73% pass
-                  const failed = Math.floor((totalTests - passed) * Math.random()); // Random fails
-                  const finalPassed = Math.min(passed, totalTests - failed);
-                  
-                  setExecutions(prev => prev.map(e => 
-                    e.id === newExecution.id 
-                      ? { 
-                          ...e, 
+            <div className="relative">
+              <Button
+                size="sm"
+                onClick={() => {
+                  const totalTests = Math.floor(Math.random() * 20) + 5;
+                  const newExecution: TestExecution = {
+                    id: Date.now().toString(),
+                    name: `Execution ${executions.length + 1}`,
+                    testCases: totalTests,
+                    status: 'running',
+                    passed: 0,
+                    failed: 0,
+                    duration: '0m',
+                    projectId: selectedProjectId || '1'
+                  };
+                  setExecutions(prev => [...prev, newExecution]);
+                  addNotification(`Test execution "${newExecution.name}" started!`);
+
+                  // Simulate execution completion with random results
+                  setTimeout(() => {
+                    const passed = Math.floor(totalTests * (0.33 + Math.random() * 0.4)); // 33-73% pass
+                    const failed = Math.floor((totalTests - passed) * Math.random()); // Random fails
+                    const finalPassed = Math.min(passed, totalTests - failed);
+
+                    setExecutions(prev => prev.map(e =>
+                      e.id === newExecution.id
+                        ? {
+                          ...e,
                           status: Math.random() > 0.1 ? 'completed' : 'failed', // 90% complete, 10% fail
                           passed: finalPassed,
                           failed: totalTests - finalPassed,
                           duration: `${Math.floor(Math.random() * 30 + 5)}m`
                         }
-                      : e
-                  ));
-                  addNotification(`Test execution completed: ${finalPassed}/${totalTests} passed`);
-                }, 3000 + Math.random() * 2000); // 3-5 seconds
-                
-                // Progress guide if in execute-tests step
-                if (currentGuideStep === 'execute-tests') {
-                  setCurrentGuideStep('complete');
-                  setIsGuideComplete(true);
-                }
-              }}
-              disabled={!isActionAllowed('run-tests-button')}
-              id="run-tests-button"
-            >
-              <Plus className="w-4 h-4 mr-2" />
-              Run Tests
-            </Button>
-            {renderHighlight('run-tests-button')}
+                        : e
+                    ));
+                    addNotification(`Test execution completed: ${finalPassed}/${totalTests} passed`);
+                  }, 3000 + Math.random() * 2000); // 3-5 seconds
+
+                  // Progress guide if in execute-tests step
+                  if (currentGuideStep === 'execute-tests') {
+                    setCurrentGuideStep('complete');
+                    setIsGuideComplete(true);
+                  }
+                }}
+                disabled={!isActionAllowed('run-tests-button')}
+                id="run-tests-button"
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                Run Tests
+              </Button>
+              {renderHighlight('run-tests-button')}
+            </div>
           </div>
-          
+
           <div className="space-y-3">
             {displayExecutions.map((execution) => (
               <Card key={execution.id} hover className="group">
@@ -1259,11 +1278,10 @@ const DashboardDemo: React.FC = () => {
                     <div className="flex-1">
                       <div className="flex items-center space-x-2 mb-2">
                         <h4 className="font-medium">{execution.name}</h4>
-                        <span className={`px-2 py-1 text-xs rounded-full ${
-                          execution.status === 'completed' ? 'bg-green-100 text-green-700' :
+                        <span className={`px-2 py-1 text-xs rounded-full ${execution.status === 'completed' ? 'bg-green-100 text-green-700' :
                           execution.status === 'running' ? 'bg-blue-100 text-blue-700' :
-                          'bg-red-100 text-red-700'
-                        }`}>
+                            'bg-red-100 text-red-700'
+                          }`}>
                           {execution.status}
                         </span>
                         {execution.status === 'running' && <Loader className="w-4 h-4 animate-spin text-blue-500" />}
@@ -1330,7 +1348,7 @@ const DashboardDemo: React.FC = () => {
     if (!showReport) return null;
 
     const report = generateTestReport(showReport);
-    
+
     return (
       <motion.div
         initial={{ opacity: 0 }}
@@ -1356,7 +1374,7 @@ const DashboardDemo: React.FC = () => {
               <X className="w-5 h-5" />
             </button>
           </div>
-          
+
           <div className="p-6 overflow-y-auto max-h-[calc(80vh-120px)]">
             <div className="space-y-6">
               {/* Summary */}
@@ -1399,10 +1417,9 @@ const DashboardDemo: React.FC = () => {
                       <CardContent className="p-4">
                         <div className="flex items-center justify-between">
                           <div className="flex items-center space-x-3">
-                            <div className={`w-3 h-3 rounded-full ${
-                              testCase.status === 'passed' ? 'bg-green-500' :
+                            <div className={`w-3 h-3 rounded-full ${testCase.status === 'passed' ? 'bg-green-500' :
                               testCase.status === 'failed' ? 'bg-red-500' : 'bg-yellow-500'
-                            }`} />
+                              }`} />
                             <div>
                               <h4 className="font-medium">{testCase.name}</h4>
                               {testCase.error && (
@@ -1454,7 +1471,7 @@ const DashboardDemo: React.FC = () => {
               <X className="w-5 h-5" />
             </button>
           </div>
-          
+
           <div className="p-6 space-y-4">
             <div>
               <label className="block text-sm font-medium mb-2">Team Name</label>
@@ -1468,7 +1485,7 @@ const DashboardDemo: React.FC = () => {
                 autoFocus
               />
             </div>
-            
+
             <div className="flex items-center space-x-3 pt-4">
               <Button
                 onClick={() => {
@@ -1483,7 +1500,7 @@ const DashboardDemo: React.FC = () => {
                     addNotification(`Team "${newTeam.name}" created successfully!`);
                     setShowTeamCreationModal(false);
                     setTeamName('');
-                    
+
                     // Progress guide if in create-team step
                     if (currentGuideStep === 'create-team') {
                       setCurrentGuideStep('view-projects');
@@ -1514,12 +1531,12 @@ const DashboardDemo: React.FC = () => {
 
     const handleCreateProject = async () => {
       if (!projectName.trim()) return;
-      
+
       setIsCreatingProject(true);
-      
+
       // Simulate API call delay
       await new Promise(resolve => setTimeout(resolve, 1500));
-      
+
       const newProject: Project = {
         id: Date.now().toString(),
         name: projectName.trim(),
@@ -1529,14 +1546,14 @@ const DashboardDemo: React.FC = () => {
         testCases: projectType === 'manual' ? 0 : Math.floor(Math.random() * 20) + 1,
         status: 'active'
       };
-      
+
       setProjects(prev => [...prev, newProject]);
-      
+
       // If it's an imported project, generate stories, test cases, and test suites
       if (projectType !== 'manual') {
         const projectId = newProject.id;
         const storyCount = Math.floor(Math.random() * 5) + 3; // 3-7 stories
-        
+
         // Generate stories
         const newStories: Story[] = [];
         const storyTemplates = [
@@ -1548,7 +1565,7 @@ const DashboardDemo: React.FC = () => {
           { title: 'User Profile', description: 'Allow users to manage their account information', priority: 'low' as const, points: 3 },
           { title: 'Review System', description: 'Enable product reviews and ratings', priority: 'low' as const, points: 5 }
         ];
-        
+
         for (let i = 0; i < storyCount; i++) {
           const template = storyTemplates[i % storyTemplates.length];
           newStories.push({
@@ -1561,7 +1578,7 @@ const DashboardDemo: React.FC = () => {
           });
         }
         setStories(prev => [...prev, ...newStories]);
-        
+
         // Generate test cases
         const newTestCases: TestCase[] = [];
         const testCaseTemplates = [
@@ -1572,7 +1589,7 @@ const DashboardDemo: React.FC = () => {
           { name: 'Payment Gateway', description: 'Test payment processing integration', framework: 'cypress' as const },
           { name: 'User Registration', description: 'Test new user registration process', framework: 'selenium' as const }
         ];
-        
+
         newStories.forEach((story, storyIndex) => {
           const testCasesPerStory = Math.floor(Math.random() * 3) + 2; // 2-4 test cases per story
           for (let j = 0; j < testCasesPerStory; j++) {
@@ -1588,7 +1605,7 @@ const DashboardDemo: React.FC = () => {
           }
         });
         setTestCases(prev => [...prev, ...newTestCases]);
-        
+
         // Generate test suites
         const newTestSuites: TestSuite[] = [];
         const suiteTemplates = [
@@ -1596,7 +1613,7 @@ const DashboardDemo: React.FC = () => {
           { name: 'E-commerce Flow', description: 'Complete shopping experience tests' },
           { name: 'Payment Integration', description: 'Payment processing and security tests' }
         ];
-        
+
         suiteTemplates.forEach((template, index) => {
           const relevantTestCases = newTestCases.filter((_, tcIndex) => tcIndex % 3 === index).map(tc => tc.id);
           if (relevantTestCases.length > 0) {
@@ -1617,7 +1634,7 @@ const DashboardDemo: React.FC = () => {
       setProjectName('');
       setProjectType('manual');
       setIsCreatingProject(false);
-      
+
       // Progress guide if in create-project step
       if (currentGuideStep === 'create-project') {
         setCurrentGuideStep('select-project');
@@ -1650,7 +1667,7 @@ const DashboardDemo: React.FC = () => {
               <X className="w-5 h-5" />
             </button>
           </div>
-          
+
           <div className="p-6 space-y-6">
             <div>
               <label className="block text-sm font-medium mb-2">Project Name</label>
@@ -1665,7 +1682,7 @@ const DashboardDemo: React.FC = () => {
                 disabled={isCreatingProject}
               />
             </div>
-            
+
             <div>
               <label className="block text-sm font-medium mb-3">Project Source</label>
               <div className="space-y-2">
@@ -1679,9 +1696,8 @@ const DashboardDemo: React.FC = () => {
                   return (
                     <div
                       key={option.id}
-                      className={`p-3 border rounded-lg cursor-pointer transition-all ${
-                        projectType === option.id ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/50'
-                      }`}
+                      className={`p-3 border rounded-lg cursor-pointer transition-all ${projectType === option.id ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/50'
+                        }`}
                       onClick={() => !isCreatingProject && setProjectType(option.id as any)}
                     >
                       <div className="flex items-center space-x-3">
@@ -1696,7 +1712,7 @@ const DashboardDemo: React.FC = () => {
                 })}
               </div>
             </div>
-            
+
             <div className="flex items-center space-x-3 pt-4">
               <Button
                 onClick={handleCreateProject}
@@ -1727,7 +1743,7 @@ const DashboardDemo: React.FC = () => {
     const generateWithAI = async () => {
       setIsGeneratingStory(true);
       await new Promise(resolve => setTimeout(resolve, 2000));
-      
+
       const aiStories = [
         { title: 'User Authentication System', description: 'Implement secure login and registration with multi-factor authentication', priority: 'high' as const },
         { title: 'Real-time Dashboard Analytics', description: 'Create interactive charts and metrics for user engagement tracking', priority: 'medium' as const },
@@ -1736,7 +1752,7 @@ const DashboardDemo: React.FC = () => {
         { title: 'Email Notification System', description: 'Automated email alerts for user actions and system events', priority: 'low' as const },
         { title: 'Advanced Search & Filtering', description: 'Implement full-text search with faceted filtering options', priority: 'medium' as const }
       ];
-      
+
       const randomStory = aiStories[Math.floor(Math.random() * aiStories.length)];
       setStoryTitle(randomStory.title);
       setStoryDescription(randomStory.description);
@@ -1747,7 +1763,7 @@ const DashboardDemo: React.FC = () => {
 
     const handleCreateStory = () => {
       if (!storyTitle.trim()) return;
-      
+
       const newStory: Story = {
         id: Date.now().toString(),
         title: storyTitle.trim(),
@@ -1756,7 +1772,7 @@ const DashboardDemo: React.FC = () => {
         points: Math.floor(Math.random() * 13) + 1,
         projectId: selectedProjectId || '1'
       };
-      
+
       setStories(prev => [...prev, newStory]);
       addNotification(`Story "${newStory.title}" created successfully!`);
       setShowStoryCreationModal(false);
@@ -1791,7 +1807,7 @@ const DashboardDemo: React.FC = () => {
               <X className="w-5 h-5" />
             </button>
           </div>
-          
+
           <div className="p-6 space-y-4 overflow-y-auto max-h-[calc(80vh-120px)]">
             <div className="flex items-center space-x-3 p-3 bg-accent/5 rounded-lg">
               <Brain className="w-5 h-5 text-accent" />
@@ -1806,7 +1822,7 @@ const DashboardDemo: React.FC = () => {
                 {isGeneratingStory ? 'Generating...' : 'AI Generate'}
               </Button>
             </div>
-            
+
             <div>
               <label className="block text-sm font-medium mb-2">Story Title *</label>
               <input
@@ -1819,7 +1835,7 @@ const DashboardDemo: React.FC = () => {
                 autoFocus
               />
             </div>
-            
+
             <div>
               <label className="block text-sm font-medium mb-2">Description</label>
               <textarea
@@ -1831,7 +1847,7 @@ const DashboardDemo: React.FC = () => {
                 style={{ background: theme === 'dark' ? '#2a2a2a' : 'white', color: theme === 'dark' ? 'white' : 'black' }}
               />
             </div>
-            
+
             <div>
               <label className="block text-sm font-medium mb-2">Priority</label>
               <div className="flex space-x-2">
@@ -1839,20 +1855,19 @@ const DashboardDemo: React.FC = () => {
                   <button
                     key={priority}
                     onClick={() => setStoryPriority(priority)}
-                    className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                      storyPriority === priority
-                        ? priority === 'high' ? 'bg-red-100 text-red-700 border-red-200' :
-                          priority === 'medium' ? 'bg-yellow-100 text-yellow-700 border-yellow-200' :
+                    className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${storyPriority === priority
+                      ? priority === 'high' ? 'bg-red-100 text-red-700 border-red-200' :
+                        priority === 'medium' ? 'bg-yellow-100 text-yellow-700 border-yellow-200' :
                           'bg-green-100 text-green-700 border-green-200'
-                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                    } border`}
+                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                      } border`}
                   >
                     {priority}
                   </button>
                 ))}
               </div>
             </div>
-            
+
             <div className="flex items-center space-x-3 pt-4">
               <Button
                 onClick={handleCreateStory}
@@ -1882,10 +1897,10 @@ const DashboardDemo: React.FC = () => {
 
     const generateWithAI = async () => {
       if (!currentSelectedStoryId) return;
-      
+
       setIsGeneratingTestCase(true);
       await new Promise(resolve => setTimeout(resolve, 2000));
-      
+
       const selectedStory = stories.find(s => s.id === currentSelectedStoryId);
       const aiTestCases = [
         { name: `${selectedStory?.title} - Happy Path Test`, description: `Test successful flow of ${selectedStory?.title.toLowerCase()} functionality` },
@@ -1894,7 +1909,7 @@ const DashboardDemo: React.FC = () => {
         { name: `${selectedStory?.title} - Performance Test`, description: `Test performance and load handling for ${selectedStory?.title.toLowerCase()}` },
         { name: `${selectedStory?.title} - Security Test`, description: `Test security aspects and access controls for ${selectedStory?.title.toLowerCase()}` }
       ];
-      
+
       const randomTestCase = aiTestCases[Math.floor(Math.random() * aiTestCases.length)];
       setTestCaseName(randomTestCase.name);
       setTestCaseDescription(randomTestCase.description);
@@ -1904,7 +1919,7 @@ const DashboardDemo: React.FC = () => {
 
     const handleCreateTestCase = () => {
       if (!testCaseName.trim() || !currentSelectedStoryId) return;
-      
+
       const newTestCase: TestCase = {
         id: Date.now().toString(),
         name: testCaseName.trim(),
@@ -1913,7 +1928,7 @@ const DashboardDemo: React.FC = () => {
         status: 'pending',
         storyId: currentSelectedStoryId
       };
-      
+
       setTestCases(prev => [...prev, newTestCase]);
       addNotification(`Test case "${newTestCase.name}" created successfully!`);
       setShowTestCaseCreationModal(false);
@@ -1921,7 +1936,7 @@ const DashboardDemo: React.FC = () => {
       setTestCaseDescription('');
       setTestFramework('playwright');
       setSelectedStoryId('');
-      
+
       // Progress guide if in create-test-case step
       if (currentGuideStep === 'create-test-case') {
         setCurrentGuideStep('view-test-suites');
@@ -1954,7 +1969,7 @@ const DashboardDemo: React.FC = () => {
               <X className="w-5 h-5" />
             </button>
           </div>
-          
+
           <div className="p-6 space-y-4 overflow-y-auto max-h-[calc(80vh-120px)]">
             <div className="flex items-center space-x-3 p-3 bg-accent/5 rounded-lg">
               <Brain className="w-5 h-5 text-accent" />
@@ -1969,7 +1984,7 @@ const DashboardDemo: React.FC = () => {
                 {isGeneratingTestCase ? 'Generating...' : 'AI Generate'}
               </Button>
             </div>
-            
+
             <div>
               <label className="block text-sm font-medium mb-2">Related Story *</label>
               <select
@@ -1983,7 +1998,7 @@ const DashboardDemo: React.FC = () => {
                 ))}
               </select>
             </div>
-            
+
             <div>
               <label className="block text-sm font-medium mb-2">Test Case Name *</label>
               <input
@@ -1996,7 +2011,7 @@ const DashboardDemo: React.FC = () => {
                 autoFocus
               />
             </div>
-            
+
             <div>
               <label className="block text-sm font-medium mb-2">Description</label>
               <textarea
@@ -2008,7 +2023,7 @@ const DashboardDemo: React.FC = () => {
                 style={{ background: theme === 'dark' ? '#2a2a2a' : 'white', color: theme === 'dark' ? 'white' : 'black' }}
               />
             </div>
-            
+
             <div>
               <label className="block text-sm font-medium mb-2">Test Framework</label>
               <div className="flex space-x-2">
@@ -2016,18 +2031,17 @@ const DashboardDemo: React.FC = () => {
                   <button
                     key={framework}
                     onClick={() => setTestFramework(framework)}
-                    className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors border ${
-                      testFramework === framework
-                        ? 'bg-primary text-white border-primary'
-                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200 border-gray-200'
-                    }`}
+                    className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors border ${testFramework === framework
+                      ? 'bg-primary text-white border-primary'
+                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200 border-gray-200'
+                      }`}
                   >
                     {framework}
                   </button>
                 ))}
               </div>
             </div>
-            
+
             <div className="flex items-center space-x-3 pt-4">
               <Button
                 onClick={handleCreateTestCase}
@@ -2053,17 +2067,17 @@ const DashboardDemo: React.FC = () => {
   return (
     <div className={`h-[600px] border border-border rounded-lg overflow-hidden flex ${theme === 'dark' ? 'bg-gray-900 text-white' : 'bg-white text-black'}`}>
       {renderSidebar()}
-      
+
       <div className="flex-1 flex flex-col">
         {renderHeader()}
-        
+
         <div className="flex-1 p-6 overflow-y-auto">
           {renderContent()}
         </div>
       </div>
 
       {renderGuideTooltip()}
-      
+
       <AnimatePresence>
         {showReport && renderReportModal()}
         {showTeamCreationModal && renderTeamCreationModal()}
