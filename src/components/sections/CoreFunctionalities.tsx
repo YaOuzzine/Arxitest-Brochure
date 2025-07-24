@@ -1,6 +1,6 @@
 'use client';
 
-import { motion } from 'framer-motion';
+import { motion, Variants } from 'framer-motion';
 import { 
   Brain, 
   Container, 
@@ -41,27 +41,14 @@ const CoreFunctionalities: React.FC = () => {
   };
 
 
-  const containerVariants = {
+  const containerVariants: Variants = {
     hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        delayChildren: 0.3,
-        staggerChildren: 0.1
-      }
-    }
+    visible: { opacity: 1 }
   };
 
-  const itemVariants = {
+  const itemVariants: Variants = {
     hidden: { y: 20, opacity: 0 },
-    visible: {
-      y: 0,
-      opacity: 1,
-      transition: {
-        duration: 0.6,
-        ease: "easeOut"
-      }
-    }
+    visible: { y: 0, opacity: 1 }
   };
 
 
@@ -79,9 +66,16 @@ const CoreFunctionalities: React.FC = () => {
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, margin: "-100px" }}
+          transition={{
+            delayChildren: 0.3,
+            staggerChildren: 0.1
+          }}
         >
           {/* Section Header */}
-          <motion.div variants={itemVariants} className="text-center mb-16">
+          <motion.div 
+            variants={itemVariants} 
+            transition={{ duration: 0.6, ease: "easeOut" }}
+            className="text-center mb-16">
             <div className="inline-flex items-center space-x-2 px-4 py-2 rounded-full glass-effect border border-secondary/20 mb-6">
               <Zap className="w-5 h-5 text-secondary" />
               <span className="text-sm font-medium text-secondary">Core Functionalities</span>
@@ -98,7 +92,10 @@ const CoreFunctionalities: React.FC = () => {
           </motion.div>
 
           {/* Core Features Grid */}
-          <motion.div variants={itemVariants} className="mb-20">
+          <motion.div 
+            variants={itemVariants} 
+            transition={{ duration: 0.6, ease: "easeOut" }}
+            className="mb-20">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {CORE_FEATURES.map((feature, index) => {
                 const Icon = getIcon(feature.icon);
@@ -106,7 +103,7 @@ const CoreFunctionalities: React.FC = () => {
                   <motion.div
                     key={feature.title}
                     variants={itemVariants}
-                    transition={{ delay: index * 0.1 }}
+                    transition={{ duration: 0.6, ease: "easeOut", delay: index * 0.1 }}
                   >
                     <Card variant="glass" hover glow className="h-full group">
                       <CardHeader>

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { motion, Variants } from 'framer-motion';
 import {
   Send,
   CheckCircle,
@@ -119,16 +119,9 @@ Thank you!`,
     }
   };
 
-  const itemVariants = {
+  const itemVariants: Variants = {
     hidden: { y: 20, opacity: 0 },
-    visible: {
-      y: 0,
-      opacity: 1,
-      transition: {
-        duration: 0.6,
-        ease: "easeOut"
-      }
-    }
+    visible: { y: 0, opacity: 1 }
   };
 
   if (isSubmitted) {
@@ -138,7 +131,7 @@ Thank you!`,
           <motion.div
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
-            transition={{ duration: 0.6, ease: "easeOut" }}
+            transition={{ duration: 0.6, ease: [0.25, 0.1, 0.25, 1] }}
           >
             <Card variant="gradient" className="p-12">
               <CardContent>
@@ -192,7 +185,10 @@ Thank you!`,
           viewport={{ once: true, margin: "-100px" }}
         >
           {/* Section Header */}
-          <motion.div variants={itemVariants} className="text-center mb-16">
+          <motion.div 
+            variants={itemVariants} 
+            transition={{ duration: 0.6, ease: "easeOut" }}
+            className="text-center mb-16">
             <div className="inline-flex items-center space-x-2 px-4 py-2 rounded-full glass-effect border border-accent/20 mb-6">
               <Sparkles className="w-5 h-5 text-accent" />
               <span className="text-sm font-medium text-accent">Start Your Testing Revolution</span>
@@ -209,7 +205,9 @@ Thank you!`,
           </motion.div>
 
           {/* Simple Demo Request Form */}
-          <motion.div variants={itemVariants}>
+          <motion.div 
+            variants={itemVariants}
+            transition={{ duration: 0.6, ease: "easeOut" }}>
             <Card variant="glass" className="max-w-2xl mx-auto">
               <CardContent className="p-8">
                 <form onSubmit={handleSubmit} className="space-y-6">
@@ -258,7 +256,7 @@ Thank you!`,
                       variant="gradient"
                       size="lg"
                       className="w-full"
-                      disabled={isSubmitting || (lastSubmitTime && (Date.now() - lastSubmitTime) < COOLDOWN_PERIOD)}
+                      disabled={isSubmitting || Boolean(lastSubmitTime && (Date.now() - lastSubmitTime) < COOLDOWN_PERIOD)}
                       icon={isSubmitting ? <Loader className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}
                     >
                       {isSubmitting ? 'Sending Request...' : 'Request Demo'}

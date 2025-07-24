@@ -1,6 +1,7 @@
 'use client';
 
-import { motion } from 'framer-motion';
+import { motion, Variants } from 'framer-motion';
+import Image from 'next/image';
 import { 
   Quote, 
   Heart,
@@ -11,26 +12,18 @@ import { TESTIMONIALS } from '@/lib/constants';
 
 const Testimonials: React.FC = () => {
 
-  const containerVariants = {
+  const containerVariants: Variants = {
     hidden: { opacity: 0 },
     visible: {
-      opacity: 1,
-      transition: {
-        delayChildren: 0.3,
-        staggerChildren: 0.1
-      }
+      opacity: 1
     }
   };
 
-  const itemVariants = {
+  const itemVariants: Variants = {
     hidden: { y: 20, opacity: 0 },
     visible: {
       y: 0,
-      opacity: 1,
-      transition: {
-        duration: 0.6,
-        ease: "easeOut"
-      }
+      opacity: 1
     }
   };
 
@@ -47,9 +40,20 @@ const Testimonials: React.FC = () => {
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, margin: "-100px" }}
+            transition={{
+              delayChildren: 0.3,
+              staggerChildren: 0.1
+            }}
           >
             {/* Section Header */}
-            <motion.div variants={itemVariants} className="text-center mb-16">
+            <motion.div 
+              variants={itemVariants} 
+              className="text-center mb-16"
+              transition={{
+                duration: 0.6,
+                ease: "easeOut"
+              }}
+            >
               <div className="inline-flex items-center space-x-2 px-4 py-2 rounded-full glass-effect border border-accent/20 mb-6">
                 <Heart className="w-5 h-5 text-accent" />
                 <span className="text-sm font-medium text-accent">Built by Experts</span>
@@ -71,7 +75,11 @@ const Testimonials: React.FC = () => {
                 <motion.div
                   key={testimonial.name}
                   variants={itemVariants}
-                  transition={{ delay: index * 0.2 }}
+                  transition={{ 
+                    duration: 0.6,
+                    ease: "easeOut",
+                    delay: index * 0.2 
+                  }}
                 >
                   <Card variant="glass" hover glow className="h-full relative overflow-hidden">
                     <div className="absolute top-4 right-4">
@@ -94,10 +102,12 @@ const Testimonials: React.FC = () => {
                         <div className="flex items-center space-x-4 pt-4 border-t border-border">
                           <div className="w-12 h-12 rounded-full overflow-hidden bg-gradient-to-br from-primary to-secondary flex items-center justify-center">
                             {testimonial.avatar ? (
-                              <img 
+                              <Image 
                                 src={testimonial.avatar} 
                                 alt={testimonial.name}
                                 className="w-full h-full object-cover"
+                                width={48}
+                                height={48}
                               />
                             ) : (
                               <span className="text-white font-bold text-lg">
@@ -119,7 +129,14 @@ const Testimonials: React.FC = () => {
             </div>
 
             {/* Call to Action */}
-            <motion.div variants={itemVariants} className="text-center mt-12">
+            <motion.div 
+              variants={itemVariants} 
+              className="text-center mt-12"
+              transition={{
+                duration: 0.6,
+                ease: "easeOut"
+              }}
+            >
               <Card variant="gradient" className="max-w-2xl mx-auto">
                 <CardContent className="p-8">
                   <div className="space-y-4">

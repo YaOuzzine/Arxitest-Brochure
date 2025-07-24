@@ -1,7 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { motion } from 'framer-motion';
+import Image from 'next/image';
+import { motion, Variants } from 'framer-motion';
 import { Brain, Code, Database, Shield, Zap, Link, Globe, Layers, Server, Lock, TestTube, Cpu, BarChart3, Container } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/Card';
 import { AI_PROVIDERS, TECH_STACK, INTEGRATIONS } from '@/lib/constants';
@@ -9,30 +10,22 @@ import { AI_PROVIDERS, TECH_STACK, INTEGRATIONS } from '@/lib/constants';
 const TechnologyShowcase: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'ai' | 'stack' | 'integrations'>('ai');
 
-  const containerVariants = {
+  const containerVariants: Variants = {
     hidden: { opacity: 0 },
     visible: {
-      opacity: 1,
-      transition: {
-        delayChildren: 0.3,
-        staggerChildren: 0.1
-      }
+      opacity: 1
     }
   };
 
-  const itemVariants = {
+  const itemVariants: Variants = {
     hidden: { y: 20, opacity: 0 },
     visible: {
       y: 0,
-      opacity: 1,
-      transition: {
-        duration: 0.6,
-        ease: "easeOut"
-      }
+      opacity: 1
     }
   };
 
-  const tabVariants = {
+  const tabVariants: Variants = {
     inactive: { scale: 1, opacity: 0.7 },
     active: { scale: 1.05, opacity: 1 }
   };
@@ -57,9 +50,20 @@ const TechnologyShowcase: React.FC = () => {
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, margin: "-100px" }}
+          transition={{
+            delayChildren: 0.3,
+            staggerChildren: 0.1
+          }}
         >
           {/* Section Header */}
-          <motion.div variants={itemVariants} className="text-center mb-16">
+          <motion.div 
+            variants={itemVariants} 
+            className="text-center mb-16"
+            transition={{
+              duration: 0.6,
+              ease: "easeOut"
+            }}
+          >
             <div className="inline-flex items-center space-x-2 px-4 py-2 rounded-full glass-effect border border-primary/20 mb-6">
               <Zap className="w-5 h-5 text-primary" />
               <span className="text-sm font-medium text-primary">Powered by Innovation</span>
@@ -78,7 +82,14 @@ const TechnologyShowcase: React.FC = () => {
           </motion.div>
 
           {/* Tab Navigation */}
-          <motion.div variants={itemVariants} className="flex flex-wrap justify-center gap-4 mb-12">
+          <motion.div 
+            variants={itemVariants} 
+            className="flex flex-wrap justify-center gap-4 mb-12"
+            transition={{
+              duration: 0.6,
+              ease: "easeOut"
+            }}
+          >
             {tabs.map((tab) => {
               const Icon = tab.icon;
               return (
@@ -132,7 +143,11 @@ const TechnologyShowcase: React.FC = () => {
                       variants={itemVariants}
                       initial="hidden"
                       animate="visible"
-                      transition={{ delay: index * 0.1 }}
+                      transition={{ 
+                        delay: index * 0.1,
+                        duration: 0.6,
+                        ease: "easeOut"
+                      }}
                     >
                       <Card variant="glass" hover glow className="h-full">
                         <CardHeader>
@@ -142,10 +157,12 @@ const TechnologyShowcase: React.FC = () => {
                               style={{ backgroundColor: `${provider.color}20` }}
                             >
                               {provider.logo.startsWith('/assets/') ? (
-                                <img 
+                                <Image 
                                   src={provider.logo} 
                                   alt={`${provider.name} logo`}
                                   className="w-8 h-8 object-contain"
+                                  width={32}
+                                  height={32}
                                 />
                               ) : provider.logo === 'Server' ? (
                                 <Server className="w-6 h-6" style={{ color: provider.color }} />
@@ -217,7 +234,11 @@ const TechnologyShowcase: React.FC = () => {
                       variants={itemVariants}
                       initial="hidden"
                       animate="visible"
-                      transition={{ delay: categoryIndex * 0.2 }}
+                      transition={{ 
+                        delay: categoryIndex * 0.2,
+                        duration: 0.6,
+                        ease: "easeOut"
+                      }}
                       className="text-center"
                     >
                       <h3 className="text-2xl font-bold mb-2 text-foreground">
@@ -233,7 +254,11 @@ const TechnologyShowcase: React.FC = () => {
                           variants={itemVariants}
                           initial="hidden"
                           animate="visible"
-                          transition={{ delay: (categoryIndex * 0.2) + (techIndex * 0.1) }}
+                          transition={{ 
+                            delay: (categoryIndex * 0.2) + (techIndex * 0.1),
+                            duration: 0.6,
+                            ease: "easeOut"
+                          }}
                         >
                           <Card variant="elevated" hover className="h-full">
                             <CardContent className="p-6">
@@ -243,10 +268,12 @@ const TechnologyShowcase: React.FC = () => {
                                   style={{ backgroundColor: `${tech.color}20` }}
                                 >
                                   {tech.icon.startsWith('https://') ? (
-                                    <img 
+                                    <Image 
                                       src={tech.icon} 
                                       alt={`${tech.name} logo`}
                                       className="w-10 h-10 object-contain"
+                                      width={40}
+                                      height={40}
                                     />
                                   ) : (
                                     (() => {
@@ -310,7 +337,11 @@ const TechnologyShowcase: React.FC = () => {
                       variants={itemVariants}
                       initial="hidden"
                       animate="visible"
-                      transition={{ delay: index * 0.2 }}
+                      transition={{ 
+                        delay: index * 0.2,
+                        duration: 0.6,
+                        ease: "easeOut"
+                      }}
                     >
                       <Card variant="glass" hover glow className="h-full relative overflow-hidden">
                         {integration.isNew && (
@@ -328,10 +359,12 @@ const TechnologyShowcase: React.FC = () => {
                               style={{ backgroundColor: `${integration.color}20` }}
                             >
                               {integration.logo.startsWith('/assets/') ? (
-                                <img 
+                                <Image 
                                   src={integration.logo} 
                                   alt={`${integration.name} logo`}
                                   className="w-8 h-8 object-contain"
+                                  width={32}
+                                  height={32}
                                 />
                               ) : (
                                 (() => {

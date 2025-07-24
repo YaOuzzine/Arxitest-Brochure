@@ -1,7 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import Image from 'next/image';
+import { motion, AnimatePresence, Variants } from 'framer-motion';
 import { Heart, Lightbulb, Shield, Users, Target, X, ZoomIn } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/Card';
 
@@ -81,26 +82,18 @@ const DesignPhilosophy: React.FC = () => {
     }
   ];
 
-  const containerVariants = {
+  const containerVariants: Variants = {
     hidden: { opacity: 0 },
     visible: {
-      opacity: 1,
-      transition: {
-        delayChildren: 0.3,
-        staggerChildren: 0.2
-      }
+      opacity: 1
     }
   };
 
-  const itemVariants = {
+  const itemVariants: Variants = {
     hidden: { y: 30, opacity: 0 },
     visible: {
       y: 0,
-      opacity: 1,
-      transition: {
-        duration: 0.6,
-        ease: "easeOut"
-      }
+      opacity: 1
     }
   };
 
@@ -118,9 +111,20 @@ const DesignPhilosophy: React.FC = () => {
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, margin: "-100px" }}
+          transition={{
+            delayChildren: 0.3,
+            staggerChildren: 0.2
+          }}
         >
           {/* Section Header */}
-          <motion.div variants={itemVariants} className="text-center mb-20">
+          <motion.div 
+            variants={itemVariants} 
+            className="text-center mb-20"
+            transition={{
+              duration: 0.6,
+              ease: "easeOut"
+            }}
+          >
             <div className="inline-flex items-center space-x-2 px-4 py-2 rounded-full glass-effect border border-accent/20 mb-6">
               <Target className="w-5 h-5 text-accent" />
               <span className="text-sm font-medium text-accent">Design Philosophy</span>
@@ -139,7 +143,14 @@ const DesignPhilosophy: React.FC = () => {
           </motion.div>
 
           {/* Core Principles - Horizontal Layout */}
-          <motion.div variants={itemVariants} className="mb-16">
+          <motion.div 
+            variants={itemVariants} 
+            className="mb-16"
+            transition={{
+              duration: 0.6,
+              ease: "easeOut"
+            }}
+          >
             <div className="text-center mb-12">
               <h3 className="text-3xl font-bold text-foreground mb-4">Core Principles</h3>
               <p className="text-lg text-foreground-muted max-w-2xl mx-auto">
@@ -154,7 +165,11 @@ const DesignPhilosophy: React.FC = () => {
                   <motion.div
                     key={principle.title}
                     variants={itemVariants}
-                    transition={{ delay: index * 0.2 }}
+                    transition={{ 
+                      duration: 0.6,
+                      ease: "easeOut",
+                      delay: index * 0.2 
+                    }}
                   >
                     <Card variant="glass" hover className="group h-full">
                       <CardHeader className="text-center">
@@ -192,7 +207,14 @@ const DesignPhilosophy: React.FC = () => {
           </motion.div>
 
           {/* Interface Previews - Full Width Below */}
-          <motion.div variants={itemVariants} className="space-y-12">
+          <motion.div 
+            variants={itemVariants} 
+            className="space-y-12"
+            transition={{
+              duration: 0.6,
+              ease: "easeOut"
+            }}
+          >
             <div className="text-center">
               <h3 className="text-3xl font-bold text-foreground mb-4">Interface Previews</h3>
               <p className="text-lg text-foreground-muted max-w-2xl mx-auto">
@@ -205,7 +227,11 @@ const DesignPhilosophy: React.FC = () => {
                 <motion.div
                   key={screen.title}
                   variants={itemVariants}
-                  transition={{ delay: index * 0.1 }}
+                  transition={{ 
+                    duration: 0.6,
+                    ease: "easeOut",
+                    delay: index * 0.1 
+                  }}
                   className="group"
                 >
                   <Card variant="elevated" hover className="overflow-hidden h-full">
@@ -218,10 +244,12 @@ const DesignPhilosophy: React.FC = () => {
                       })}
                     >
                       {/* Actual Screenshot */}
-                      <img 
+                      <Image 
                         src={screen.image}
                         alt={`${screen.title} - Arxitest Interface`}
                         className="w-full h-full object-cover object-top transition-all duration-500 group-hover:scale-105"
+                        fill
+                        sizes="(max-width: 768px) 100vw, 33vw"
                       />
                       
                       {/* Zoom indicator */}
@@ -263,7 +291,14 @@ const DesignPhilosophy: React.FC = () => {
           </motion.div>
 
           {/* Bottom Section - Trust Indicators and Team Features */}
-          <motion.div variants={itemVariants} className="mt-16">
+          <motion.div 
+            variants={itemVariants} 
+            className="mt-16"
+            transition={{
+              duration: 0.6,
+              ease: "easeOut"
+            }}
+          >
             <div className="grid lg:grid-cols-2 gap-8">
               {/* Trust Indicators */}
               {/* <Card variant="gradient" className="text-center">
@@ -357,10 +392,12 @@ const DesignPhilosophy: React.FC = () => {
 
               {/* Modal Image */}
               <div className="flex-1 relative overflow-hidden rounded-b-lg">
-                <img
+                <Image
                   src={selectedImage.src}
                   alt={`${selectedImage.title} - Full Size View`}
                   className="w-full h-full object-contain bg-white/5"
+                  fill
+                  sizes="100vw"
                 />
                 
                 {/* Browser window indicators on modal */}

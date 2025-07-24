@@ -1,6 +1,6 @@
 'use client';
 
-import { motion } from 'framer-motion';
+import { motion, Variants } from 'framer-motion';
 import {
   Play,
   Brain,
@@ -13,26 +13,18 @@ import DashboardDemo from '@/components/demo/DashboardDemo';
 
 const DemoJourney: React.FC = () => {
 
-  const containerVariants = {
+  const containerVariants: Variants = {
     hidden: { opacity: 0 },
     visible: {
-      opacity: 1,
-      transition: {
-        delayChildren: 0.3,
-        staggerChildren: 0.1
-      }
+      opacity: 1
     }
   };
 
-  const itemVariants = {
+  const itemVariants: Variants = {
     hidden: { y: 20, opacity: 0 },
     visible: {
       y: 0,
-      opacity: 1,
-      transition: {
-        duration: 0.6,
-        ease: "easeOut"
-      }
+      opacity: 1
     }
   };
 
@@ -51,9 +43,20 @@ const DemoJourney: React.FC = () => {
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, margin: "-100px" }}
+          transition={{
+            delayChildren: 0.3,
+            staggerChildren: 0.1
+          }}
         >
           {/* Section Header */}
-          <motion.div variants={itemVariants} className="text-center mb-16">
+          <motion.div 
+            variants={itemVariants} 
+            className="text-center mb-16"
+            transition={{
+              duration: 0.6,
+              ease: "easeOut"
+            }}
+          >
             <div className="inline-flex items-center space-x-2 px-4 py-2 rounded-full glass-effect border border-accent/20 mb-6">
               <Play className="w-5 h-5 text-accent" />
               <span className="text-sm font-medium text-accent">Interactive Demo</span>
@@ -70,7 +73,14 @@ const DemoJourney: React.FC = () => {
           </motion.div>
 
           {/* Demo Purpose Explanation */}
-          <motion.div variants={itemVariants} className="mb-8">
+          <motion.div 
+            variants={itemVariants} 
+            className="mb-8"
+            transition={{
+              duration: 0.6,
+              ease: "easeOut"
+            }}
+          >
             <Card variant="glass" className="max-w-4xl mx-auto p-6 bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
               <div className="flex items-start space-x-4">
                 <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
@@ -101,7 +111,14 @@ const DemoJourney: React.FC = () => {
           </motion.div>
 
           {/* Interactive Demo Instructions */}
-          <motion.div variants={itemVariants} className="text-center mb-12">
+          <motion.div 
+            variants={itemVariants} 
+            className="text-center mb-12"
+            transition={{
+              duration: 0.6,
+              ease: "easeOut"
+            }}
+          >
             <Card variant="glass" className="max-w-2xl mx-auto p-6">
               <div className="space-y-4">
                 <div className="flex items-center justify-center space-x-2">
@@ -128,7 +145,13 @@ const DemoJourney: React.FC = () => {
           </motion.div>
 
           {/* Interactive Dashboard Demo */}
-          <motion.div variants={itemVariants}>
+          <motion.div 
+            variants={itemVariants}
+            transition={{
+              duration: 0.6,
+              ease: "easeOut"
+            }}
+          >
             <Card variant="glass" className="overflow-hidden">
               <CardHeader>
                 <div className="text-center space-y-2">

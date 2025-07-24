@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import Image from 'next/image';
 import {
   Users,
   FolderOpen,
@@ -40,7 +41,7 @@ interface Team {
 interface Project {
   id: string;
   name: string;
-  type: 'arxitest' | 'github' | 'jira';
+  type: 'arxitest' | 'github' | 'jira' | 'taiga';
   teamId: string;
   stories: number;
   testCases: number;
@@ -164,7 +165,7 @@ const DashboardDemo: React.FC = () => {
   const [testSuiteName, setTestSuiteName] = useState('');
   const [testSuiteDescription, setTestSuiteDescription] = useState('');
   const [selectedTestCasesForSuite, setSelectedTestCasesForSuite] = useState<TestCase[]>([]);
-  const [dragOverTarget, setDragOverTarget] = useState<'selected' | null>(null);
+  const [dragOverTarget, setDragOverTarget] = useState<'selected' | 'available' | null>(null);
 
   const [teams, setTeams] = useState<Team[]>([
     { id: '1', name: 'Frontend Team', members: 5, color: 'primary' },
@@ -484,7 +485,7 @@ const DashboardDemo: React.FC = () => {
   const filteredTestSuites = selectedProjectId ? testSuites.filter(ts => ts.projectId === selectedProjectId) : [];
   const filteredExecutions = selectedProjectId ? executions.filter(e => e.projectId === selectedProjectId) : [];
 
-  const searchFilter = (items: Record<string, any>[], searchFields: string[]) => {
+  const searchFilter = function<T>(items: T[], searchFields: (keyof T)[]): T[] {
     if (!searchQuery) return items;
     return items.filter(item =>
       searchFields.some(field =>
@@ -706,10 +707,12 @@ const DashboardDemo: React.FC = () => {
     return (
       <div className="w-64 border-r border-border p-4 space-y-2" style={{ background: theme === 'dark' ? '#0f0f0f' : '#f8fafc' }}>
         <div className="mb-6">
-          <img
-            src={ArxitestLogo.src}
+          <Image
+            src={ArxitestLogo}
             alt="Arxitest Logo"
             className="h-15 w-auto"
+            width={60}
+            height={60}
           />
           <p className="text-xs text-foreground-muted">
             Interactive demo to familiarize users with Arxitest and its workflow

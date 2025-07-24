@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import Image from 'next/image';
+import { motion, Variants } from 'framer-motion';
 import { ChevronDown, Rocket } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import TypewriterText from '@/components/animations/TypewriterText';
@@ -30,26 +31,18 @@ const HeroSection: React.FC = () => {
     return () => window.removeEventListener('mousemove', handleMouseMove);
   }, []);
 
-  const containerVariants = {
+  const containerVariants: Variants = {
     hidden: { opacity: 0 },
     visible: {
-      opacity: 1,
-      transition: {
-        delayChildren: 0.3,
-        staggerChildren: 0.2
-      }
+      opacity: 1
     }
   };
 
-  const itemVariants = {
+  const itemVariants: Variants = {
     hidden: { y: 20, opacity: 0 },
     visible: {
       y: 0,
-      opacity: 1,
-      transition: {
-        duration: 0.6,
-        ease: "easeOut"
-      }
+      opacity: 1
     }
   };
 
@@ -101,19 +94,39 @@ const HeroSection: React.FC = () => {
           variants={containerVariants}
           initial="hidden"
           animate="visible"
+          transition={{
+            delayChildren: 0.3,
+            staggerChildren: 0.2
+          }}
           className="space-y-8"
         >
           {/* Logo */}
-          <motion.div variants={itemVariants} className="mb-8">
-              <img
-                src={ArxitestLogo.src}
+          <motion.div 
+            variants={itemVariants}
+            transition={{
+              duration: 0.6,
+              ease: "easeOut"
+            }}
+            className="mb-8"
+          >
+              <Image
+                src={ArxitestLogo}
                 alt="Arxitest Logo"
                 className="px-80 py-3 h-35 w-auto object-contain"
+                width={200}
+                height={140}
               />
           </motion.div>
 
           {/* Main Headlines */}
-          <motion.div variants={itemVariants} className="space-y-4">
+          <motion.div 
+            variants={itemVariants}
+            transition={{
+              duration: 0.6,
+              ease: "easeOut"
+            }}
+            className="space-y-4"
+          >
             <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold leading-tight">
               <span className="block text-foreground">Welcome to the</span>
               <span className="block gradient-text">Future of Software Testing</span>
@@ -130,7 +143,14 @@ const HeroSection: React.FC = () => {
           </motion.div>
 
           {/* Value Proposition */}
-          <motion.div variants={itemVariants} className="max-w-4xl mx-auto space-y-6">
+          <motion.div 
+            variants={itemVariants}
+            transition={{
+              duration: 0.6,
+              ease: "easeOut"
+            }}
+            className="max-w-4xl mx-auto space-y-6"
+          >
             <p className="text-lg md:text-xl text-foreground-muted leading-relaxed">
               Currently in development - The world&apos;s first truly intelligent test automation platform 
               that makes enterprise-grade QA accessible to any team, regardless of testing expertise.
@@ -146,7 +166,14 @@ const HeroSection: React.FC = () => {
           </motion.div>
 
           {/* CTA Buttons */}
-          <motion.div variants={itemVariants} className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+          <motion.div 
+            variants={itemVariants}
+            transition={{
+              duration: 0.6,
+              ease: "easeOut"
+            }}
+            className="flex flex-col sm:flex-row gap-4 justify-center items-center"
+          >
             <Button
               variant="gradient"
               size="xl"
@@ -168,7 +195,14 @@ const HeroSection: React.FC = () => {
           </motion.div>
 
           {/* Trust Indicators */}
-          <motion.div variants={itemVariants} className="pt-8">
+          <motion.div 
+            variants={itemVariants}
+            transition={{
+              duration: 0.6,
+              ease: "easeOut"
+            }}
+            className="pt-8"
+          >
             <div className="flex flex-wrap justify-center items-center gap-8 text-sm text-foreground-muted">
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 bg-accent rounded-full animate-pulse" />
@@ -199,17 +233,17 @@ const HeroSection: React.FC = () => {
           aria-label="Scroll to features"
           whileHover={{ 
             y: 8, 
-            scale: 1.05,
-            transition: { duration: 0.3, ease: "easeOut" }
+            scale: 1.05
           }}
+          transition={{ duration: 0.3, ease: "easeOut" }}
           whileTap={{ scale: 0.95 }}
         >
           <span className="text-sm font-medium">Discover More</span>
           <motion.div
             whileHover={{ 
-              y: 4,
-              transition: { duration: 0.3, ease: "easeOut" }
+              y: 4
             }}
+            transition={{ duration: 0.3, ease: "easeOut" }}
           >
             <ChevronDown className="w-6 h-6" />
           </motion.div>
