@@ -79,7 +79,7 @@ const DemoJourney: React.FC = () => {
                 <div className="flex-1">
                   <h3 className="text-lg font-semibold text-blue-900 mb-2">Demo Purpose</h3>
                   <p className="text-blue-800 mb-3">
-                    This interactive demo is designed to <strong>familiarize users with Arxitest's complete workflow</strong>,
+                    This interactive demo is designed to <strong>familiarize users with Arxitest&apos;s complete workflow</strong>,
                     from team organization to test execution and reporting. Follow the guided tour to experience how AI-powered testing
                     transforms your development process.
                   </p>

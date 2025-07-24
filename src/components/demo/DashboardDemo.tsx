@@ -130,7 +130,7 @@ const DashboardDemo: React.FC = () => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [showNotifications, setShowNotifications] = useState(false);
   const [currentGuideStep, setCurrentGuideStep] = useState<string>('start');
-  const [theme, setTheme] = useState<'light' | 'dark'>('dark');
+  const [theme] = useState<'light' | 'dark'>('dark');
   const [showReport, setShowReport] = useState<string | null>(null);
   const [showProjectCreationModal, setShowProjectCreationModal] = useState(false);
   const [showTeamCreationModal, setShowTeamCreationModal] = useState(false);
@@ -355,7 +355,7 @@ const DashboardDemo: React.FC = () => {
       id: 'complete',
       target: '',
       title: 'Congratulations! 🎉',
-      description: 'You\'ve completed the full Arxitest workflow: Team → Project → Story → Test Case → Test Suite → Execution. Continue exploring with full functionality!',
+      description: 'You&apos;ve completed the full Arxitest workflow: Team → Project → Story → Test Case → Test Suite → Execution. Continue exploring with full functionality!',
       action: 'observe',
       nextStep: '',
       allowedActions: ['*']
@@ -484,14 +484,14 @@ const DashboardDemo: React.FC = () => {
   const filteredTestSuites = selectedProjectId ? testSuites.filter(ts => ts.projectId === selectedProjectId) : [];
   const filteredExecutions = selectedProjectId ? executions.filter(e => e.projectId === selectedProjectId) : [];
 
-  const searchFilter = (items: Record<string, any>[], searchFields: string[]) => {
-    if (!searchQuery) return items;
-    return items.filter(item =>
-      searchFields.some(field =>
-        item[field]?.toString().toLowerCase().includes(searchQuery.toLowerCase())
-      )
-    );
-  };
+  const searchFilter = (items: Record<string, unknown>[], searchFields: string[]) => {
+  if (!searchQuery) return items;
+  return items.filter(item =>
+    searchFields.some(field =>
+      String(item[field])?.toLowerCase().includes(searchQuery.toLowerCase())
+    )
+  );
+};
 
   const generateRandomTestResult = () => {
     const rand = Math.random();
