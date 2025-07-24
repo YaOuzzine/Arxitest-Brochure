@@ -484,14 +484,14 @@ const DashboardDemo: React.FC = () => {
   const filteredTestSuites = selectedProjectId ? testSuites.filter(ts => ts.projectId === selectedProjectId) : [];
   const filteredExecutions = selectedProjectId ? executions.filter(e => e.projectId === selectedProjectId) : [];
 
-  const searchFilter = (items: Record<string, unknown>[], searchFields: string[]) => {
-  if (!searchQuery) return items;
-  return items.filter(item =>
-    searchFields.some(field =>
-      String(item[field])?.toLowerCase().includes(searchQuery.toLowerCase())
-    )
-  );
-};
+  const searchFilter = (items: Record<string, any>[], searchFields: string[]) => {
+    if (!searchQuery) return items;
+    return items.filter(item =>
+      searchFields.some(field =>
+        String(item[field])?.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+    );
+  };
 
   const generateRandomTestResult = () => {
     const rand = Math.random();
@@ -707,10 +707,10 @@ const DashboardDemo: React.FC = () => {
       <div className="w-64 border-r border-border p-4 space-y-2" style={{ background: theme === 'dark' ? '#0f0f0f' : '#f8fafc' }}>
         <div className="mb-6">
           <img
-        src={ArxitestLogo.src}
-        alt="Arxitest Logo"
-        className="h-15 w-auto"
-      />
+            src={ArxitestLogo.src}
+            alt="Arxitest Logo"
+            className="h-15 w-auto"
+          />
           <p className="text-xs text-foreground-muted">
             Interactive demo to familiarize users with Arxitest and its workflow
           </p>
@@ -2074,10 +2074,10 @@ const DashboardDemo: React.FC = () => {
     );
   };
 
-     const renderTestSuiteCreationModal = () => {
+  const renderTestSuiteCreationModal = () => {
     if (!showTestSuiteCreationModal) return null;
 
-    
+
 
     const availableTestCases = filteredTestCases.filter(
       tc => !selectedTestCasesForSuite.some(stc => stc.id === tc.id)
@@ -2125,7 +2125,7 @@ const DashboardDemo: React.FC = () => {
         setSelectedTestCasesForSuite(prev => prev.filter(tc => tc.id !== testCaseToMove.id));
       }
     };
-    
+
     const handleCreateTestSuite = () => {
       if (!testSuiteName.trim() || selectedTestCasesForSuite.length === 0) return;
 
@@ -2140,7 +2140,7 @@ const DashboardDemo: React.FC = () => {
 
       setTestSuites(prev => [...prev, newTestSuite]);
       addNotification(`Test suite "${newTestSuite.name}" created successfully!`);
-      
+
       setShowTestSuiteCreationModal(false);
       setTestSuiteName('');
       setTestSuiteDescription('');
@@ -2186,7 +2186,7 @@ const DashboardDemo: React.FC = () => {
               <X className="w-5 h-5" />
             </button>
           </div>
-          
+
           <div className="p-6 space-y-4 overflow-y-auto">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
@@ -2213,7 +2213,7 @@ const DashboardDemo: React.FC = () => {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4">
               {/* Available Test Cases Column */}
-              <div 
+              <div
                 className="space-y-3"
                 onDragEnter={(e) => handleDragEnter(e, 'available')}
                 onDragLeave={handleDragLeave}
@@ -2221,9 +2221,8 @@ const DashboardDemo: React.FC = () => {
                 onDrop={(e) => handleDrop(e, 'available')}
               >
                 <h4 className="font-semibold text-center">Available Test Cases</h4>
-                <div className={`p-4 border border-dashed rounded-lg space-y-2 h-[250px] overflow-y-auto transition-colors ${
-                  dragOverTarget === 'available' ? 'bg-red-500/10 border-red-500' : 'bg-slate-900/30 border-border'
-                }`}>
+                <div className={`p-4 border border-dashed rounded-lg space-y-2 h-[250px] overflow-y-auto transition-colors ${dragOverTarget === 'available' ? 'bg-red-500/10 border-red-500' : 'bg-slate-900/30 border-border'
+                  }`}>
                   {availableTestCases.length > 0 ? (
                     availableTestCases.map(tc => <TestCaseItem key={tc.id} testCase={tc} />)
                   ) : (
@@ -2233,7 +2232,7 @@ const DashboardDemo: React.FC = () => {
               </div>
 
               {/* Selected Test Cases Column */}
-              <div 
+              <div
                 className="space-y-3"
                 onDragEnter={(e) => handleDragEnter(e, 'selected')}
                 onDragLeave={handleDragLeave}
@@ -2241,11 +2240,10 @@ const DashboardDemo: React.FC = () => {
                 onDrop={(e) => handleDrop(e, 'selected')}
               >
                 <h4 className="font-semibold text-center">Selected for Suite</h4>
-                <div className={`p-4 border border-dashed rounded-lg space-y-2 h-[250px] overflow-y-auto transition-colors ${
-                  dragOverTarget === 'selected' ? 'bg-primary/10 border-primary' : 'bg-primary/5 border-primary/40'
-                }`}>
+                <div className={`p-4 border border-dashed rounded-lg space-y-2 h-[250px] overflow-y-auto transition-colors ${dragOverTarget === 'selected' ? 'bg-primary/10 border-primary' : 'bg-primary/5 border-primary/40'
+                  }`}>
                   {selectedTestCasesForSuite.length > 0 ? (
-                     selectedTestCasesForSuite.map(tc => <TestCaseItem key={tc.id} testCase={tc} />)
+                    selectedTestCasesForSuite.map(tc => <TestCaseItem key={tc.id} testCase={tc} />)
                   ) : (
                     <div className="flex items-center justify-center h-full text-sm text-foreground-muted pointer-events-none">
                       Drag & drop test cases here.
