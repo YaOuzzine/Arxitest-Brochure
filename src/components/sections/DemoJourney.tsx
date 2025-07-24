@@ -1,29 +1,14 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  Play, 
-  Pause, 
-  RotateCcw, 
-  CheckCircle, 
-  Circle, 
-  Link, 
-  Brain, 
-  Code, 
-  Container, 
-  BarChart3, 
-  RefreshCw,
+import { motion } from 'framer-motion';
+import {
+  Play,
+  Brain,
+  BarChart3,
   ChevronRight,
-  Loader,
-  Terminal,
-  FileText,
-  Database,
-  Zap,
   AlertTriangle
 } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/Card';
-import { Button } from '@/components/ui/Button';
 import DashboardDemo from '@/components/demo/DashboardDemo';
 
 const DemoJourney: React.FC = () => {
@@ -73,13 +58,13 @@ const DemoJourney: React.FC = () => {
               <Play className="w-5 h-5 text-accent" />
               <span className="text-sm font-medium text-accent">Interactive Demo</span>
             </div>
-            
+
             <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6">
               Experience the <span className="gradient-text">Magic</span>
             </h2>
-            
+
             <p className="text-xl text-foreground-muted max-w-3xl mx-auto leading-relaxed">
-              Take a guided journey through Arxitest&apos;s complete workflow, from project connection 
+              Take a guided journey through Arxitest's complete workflow, from project connection
               to results delivery, all powered by artificial intelligence.
             </p>
           </motion.div>
@@ -94,8 +79,8 @@ const DemoJourney: React.FC = () => {
                 <div className="flex-1">
                   <h3 className="text-lg font-semibold text-blue-900 mb-2">Demo Purpose</h3>
                   <p className="text-blue-800 mb-3">
-                    This interactive demo is designed to <strong>familiarize users with Arxitest's complete workflow</strong>, 
-                    from team organization to test execution and reporting. Follow the guided tour to experience how AI-powered testing 
+                    This interactive demo is designed to <strong>familiarize users with Arxitest's complete workflow</strong>,
+                    from team organization to test execution and reporting. Follow the guided tour to experience how AI-powered testing
                     transforms your development process.
                   </p>
                   <div className="space-y-2">
@@ -124,7 +109,7 @@ const DemoJourney: React.FC = () => {
                   <span className="text-lg font-semibold text-foreground">Interactive Demo Guide</span>
                 </div>
                 <p className="text-foreground-muted">
-                  Follow the guided tour below to experience the complete Arxitest workflow. 
+                  Follow the guided tour below to experience the complete Arxitest workflow.
                   Click through each step to see how teams create projects, generate tests, and execute them.
                 </p>
                 <div className="flex flex-wrap justify-center gap-2 text-sm">

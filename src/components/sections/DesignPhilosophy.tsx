@@ -2,8 +2,9 @@
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Heart, Lightbulb, Shield, Users, Zap, Target, X, ZoomIn } from 'lucide-react';
+import { Heart, Lightbulb, Shield, Users, Target, X, ZoomIn } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/Card';
+
 
 const DesignPhilosophy: React.FC = () => {
   const [selectedImage, setSelectedImage] = useState<{ src: string; title: string; description: string } | null>(null);

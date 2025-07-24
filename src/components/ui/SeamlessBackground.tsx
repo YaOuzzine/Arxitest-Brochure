@@ -91,7 +91,6 @@ const SeamlessBackground: React.FC<SeamlessBackgroundProps> = ({ className = '' 
     const handleScroll = () => {
       // Subtle parallax effect without moving the canvas
       const scrollY = window.pageYOffset;
-      const parallaxOffset = scrollY * 0.1;
       
       // Apply parallax to floating elements
       const floatingElements = document.querySelectorAll('.floating-animation');

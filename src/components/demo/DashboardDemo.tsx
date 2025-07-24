@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Users,
@@ -13,32 +13,20 @@ import {
   Github,
   ExternalLink,
   Loader,
-  CheckCircle,
-  XCircle,
-  BarChart3,
-  Settings,
   Bell,
   Search,
   Sparkles,
   Brain,
-  Download,
   Eye,
-  Zap,
   X,
   Trash2,
-  Edit,
-  Clock,
   Target,
-  ChevronRight,
-  ArrowRight,
   ArrowDown,
   Info,
-  Sun,
-  Moon,
-  AlertTriangle
 } from 'lucide-react';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
+import { Card, CardContent } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
+import ArxitestLogo from '@/assets/images/logo-icon-w.png';
 
 type SidebarItem = 'teams' | 'projects' | 'stories' | 'testcases' | 'testsuites' | 'executions';
 
@@ -171,6 +159,13 @@ const DashboardDemo: React.FC = () => {
   const [selectedStoryId, setSelectedStoryId] = useState('');
   const [isGeneratingTestCase, setIsGeneratingTestCase] = useState(false);
 
+  // Test suite:
+  const [showTestSuiteCreationModal, setShowTestSuiteCreationModal] = useState(false);
+  const [testSuiteName, setTestSuiteName] = useState('');
+  const [testSuiteDescription, setTestSuiteDescription] = useState('');
+  const [selectedTestCasesForSuite, setSelectedTestCasesForSuite] = useState<TestCase[]>([]);
+  const [dragOverTarget, setDragOverTarget] = useState<'selected' | null>(null);
+
   const [teams, setTeams] = useState<Team[]>([
     { id: '1', name: 'Frontend Team', members: 5, color: 'primary' },
     { id: '2', name: 'Backend Team', members: 3, color: 'secondary' }
@@ -225,6 +220,16 @@ const DashboardDemo: React.FC = () => {
       highlightElement: 'add-team-button',
       nextStep: 'view-projects',
       allowedActions: ['add-team-button']
+    },
+    'select-team': {
+      id: 'select-team',
+      target: 'team-list-container',
+      title: 'Select Your Team',
+      description: 'Great! Now click on a team to manage its projects.',
+      action: 'click',
+      highlightElement: 'team-list-container',
+      nextStep: 'view-projects',
+      allowedActions: ['team-card-*']
     },
     'view-projects': {
       id: 'view-projects',
@@ -318,11 +323,11 @@ const DashboardDemo: React.FC = () => {
     },
     'select-test-suite': {
       id: 'select-test-suite',
-      target: 'testsuite-card',
+      target: 'testsuite-list-container',
       title: 'Select Your Test Suite',
-      description: 'Perfect! Now click on your test suite to select it for execution.',
+      description: 'Perfect! Now click on any test suite in the list to select it for execution.',
       action: 'click',
-      highlightElement: 'testsuite-card',
+      highlightElement: 'testsuite-list-container',
       nextStep: 'run-tests',
       allowedActions: ['testsuite-card-*']
     },
@@ -353,7 +358,7 @@ const DashboardDemo: React.FC = () => {
       description: 'You\'ve completed the full Arxitest workflow: Team → Project → Story → Test Case → Test Suite → Execution. Continue exploring with full functionality!',
       action: 'observe',
       nextStep: '',
-      allowedActions: ['*'] // Allow all actions after guide completion
+      allowedActions: ['*']
     }
   };
 
@@ -474,16 +479,16 @@ const DashboardDemo: React.FC = () => {
   };
 
   const filteredProjects = selectedTeamId ? projects.filter(p => p.teamId === selectedTeamId) : projects;
-  const filteredStories = selectedProjectId ? stories.filter(s => s.projectId === selectedProjectId) : stories;
-  const filteredTestCases = filteredStories.length > 0 ? testCases.filter(tc => filteredStories.some(s => s.id === tc.storyId)) : testCases;
-  const filteredTestSuites = selectedProjectId ? testSuites.filter(ts => ts.projectId === selectedProjectId) : testSuites;
-  const filteredExecutions = selectedProjectId ? executions.filter(e => e.projectId === selectedProjectId) : executions;
+  const filteredStories = selectedProjectId ? stories.filter(s => s.projectId === selectedProjectId) : [];
+  const filteredTestCases = selectedProjectId ? testCases.filter(tc => filteredStories.some(s => s.id === tc.storyId)) : [];
+  const filteredTestSuites = selectedProjectId ? testSuites.filter(ts => ts.projectId === selectedProjectId) : [];
+  const filteredExecutions = selectedProjectId ? executions.filter(e => e.projectId === selectedProjectId) : [];
 
-  const searchFilter = (items: any[], searchFields: string[]) => {
+  const searchFilter = (items: Record<string, any>[], searchFields: string[]) => {
     if (!searchQuery) return items;
     return items.filter(item =>
       searchFields.some(field =>
-        item[field]?.toLowerCase().includes(searchQuery.toLowerCase())
+        item[field]?.toString().toLowerCase().includes(searchQuery.toLowerCase())
       )
     );
   };
@@ -569,31 +574,30 @@ const DashboardDemo: React.FC = () => {
 
   const [tooltipPosition, setTooltipPosition] = useState({ top: 20, left: 20 });
 
-    useEffect(() => {
+  useEffect(() => {
     if (currentGuideStep === 'complete' || !currentStep.highlightElement) return;
 
     const updateTooltipPosition = () => {
       const elementId = currentStep.highlightElement;
       if (!elementId) return;
-      
+
       const dashboardContainer = document.querySelector('.h-\\[600px\\]');
       if (!dashboardContainer) return;
       const containerRect = dashboardContainer.getBoundingClientRect();
 
-      // Add special positioning for the project list step
-      if (elementId === 'project-list-container') {
+      if (elementId === 'team-list-container' || elementId === 'project-list-container') {
         setTooltipPosition({
-          top: containerRect.height / 2 - 80, // Adjust to center vertically
-          left: containerRect.width / 2 - 150, // Adjust to center horizontally
+          top: containerRect.height / 2 - 200, // Center vertically
+          left: containerRect.width / 2 - 150,  // Center horizontally
         });
         return;
       }
-      
+
       const element = document.getElementById(elementId);
       if (!element) return;
-      
+
       const rect = element.getBoundingClientRect();
-      
+
       setTooltipPosition({
         top: rect.top - containerRect.top - 40,
         left: rect.left - containerRect.left + (rect.width / 2) - 150,
@@ -601,7 +605,7 @@ const DashboardDemo: React.FC = () => {
     };
 
     const timeoutId = setTimeout(updateTooltipPosition, 100);
-    
+
     return () => clearTimeout(timeoutId);
   }, [currentGuideStep, currentStep.highlightElement]);
 
@@ -702,7 +706,11 @@ const DashboardDemo: React.FC = () => {
     return (
       <div className="w-64 border-r border-border p-4 space-y-2" style={{ background: theme === 'dark' ? '#0f0f0f' : '#f8fafc' }}>
         <div className="mb-6">
-          <h2 className="text-xl font-bold text-primary mb-2">Arxitest Demo</h2>
+          <img
+        src={ArxitestLogo.src}
+        alt="Arxitest Logo"
+        className="h-15 w-auto"
+      />
           <p className="text-xs text-foreground-muted">
             Interactive demo to familiarize users with Arxitest's workflow
           </p>
@@ -856,49 +864,63 @@ const DashboardDemo: React.FC = () => {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {displayTeams.map((team) => (
-              <div key={team.id} className="relative">
-                <Card
-                  hover
-                  className={`cursor-pointer transition-all ${selectedTeamId === team.id ? 'ring-2 ring-primary' : ''
-                    } ${!isActionAllowed(`team-card-${team.id}`) && currentGuideStep !== 'complete' ? 'opacity-50 cursor-not-allowed' : ''}`}
-                  onClick={() => isActionAllowed(`team-card-${team.id}`) && (handleGuideAction(`team-card-${team.id}`) || setSelectedTeamId(team.id))}
-                  id={`team-card-${team.id}`}
-                >
-                  <CardContent className="mt-4 p-4">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-3">
-                        <div className={`w-3 h-3 rounded-full bg-${team.color}`} />
-                        <div>
-                          <h4 className="font-medium">{team.name}</h4>
-                          <p className="text-sm text-foreground-muted">{team.members} members</p>
+          <div className="relative" id="team-list-container">
+            {renderHighlight('team-list-container')}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {displayTeams.map((team) => (
+                <div key={team.id} className="relative">
+                  <Card
+                    hover
+                    className={`cursor-pointer transition-all ${selectedTeamId === team.id ? 'ring-2 ring-primary' : ''
+                      } ${!isActionAllowed(`team-card-${team.id}`) && currentGuideStep !== 'complete' ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    onClick={() => {
+                      if (isActionAllowed(`team-card-${team.id}`)) {
+                        if (team.id !== selectedTeamId) {
+                          setSelectedProjectId(null);
+                        }
+
+                        setSelectedTeamId(team.id);
+
+                        if (currentGuideStep === 'select-team') {
+                          setCurrentGuideStep('view-projects');
+                        }
+                      }
+                    }}
+                    id={`team-card-${team.id}`}
+                  >
+                    <CardContent className="mt-4 p-4">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-3">
+                          <div className={`w-3 h-3 rounded-full bg-${team.color}`} />
+                          <div>
+                            <h4 className="font-medium">{team.name}</h4>
+                            <p className="text-sm text-foreground-muted">{team.members} members</p>
+                          </div>
                         </div>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            deleteItem('team', team.id);
+                          }}
+                          className="opacity-0 group-hover:opacity-100 p-1 hover:bg-red-100 rounded"
+                          disabled={!isActionAllowed('delete') && currentGuideStep !== 'complete'}
+                        >
+                          <Trash2 className="w-4 h-4 text-red-500" />
+                        </button>
                       </div>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          deleteItem('team', team.id);
-                        }}
-                        className="opacity-0 group-hover:opacity-100 p-1 hover:bg-red-100 rounded"
-                        disabled={!isActionAllowed('delete') && currentGuideStep !== 'complete'}
-                      >
-                        <Trash2 className="w-4 h-4 text-red-500" />
-                      </button>
-                    </div>
-                  </CardContent>
-                </Card>
-                {renderHighlight(`team-card-${team.id}`)}
-              </div>
-            ))}
+                    </CardContent>
+                  </Card>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       );
     };
 
-        const renderProjects = () => {
+    const renderProjects = () => {
       const displayProjects = searchFilter(filteredProjects, ['name', 'type']);
-      
+
       return (
         <div className="space-y-4">
           <div className="flex items-center justify-between">
@@ -924,7 +946,7 @@ const DashboardDemo: React.FC = () => {
               {renderHighlight('add-project-button')}
             </div>
           </div>
-          
+
           <div className="relative" id="project-list-container">
             {renderHighlight('project-list-container')}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -933,22 +955,21 @@ const DashboardDemo: React.FC = () => {
                   github: Github,
                   jira: ExternalLink,
                   arxitest: Sparkles,
-                  taiga: Target // This is the fix
+                  taiga: Target
                 };
                 const Icon = typeIcons[project.type as keyof typeof typeIcons];
-                
+
                 // Graceful fallback if an icon is ever missing in the future
                 if (!Icon) {
-                  return null; 
+                  return null;
                 }
-                
+
                 return (
                   <div key={project.id} className="relative">
                     <Card
                       hover
-                      className={`cursor-pointer transition-all group ${
-                        selectedProjectId === project.id ? 'ring-2 ring-primary' : ''
-                      } ${!isActionAllowed(`project-card-${project.id}`) ? 'opacity-50 cursor-not-allowed' : ''}`}
+                      className={`cursor-pointer transition-all group ${selectedProjectId === project.id ? 'ring-2 ring-primary' : ''
+                        } ${!isActionAllowed(`project-card-${project.id}`) ? 'opacity-50 cursor-not-allowed' : ''}`}
                       onClick={() => {
                         if (isActionAllowed(`project-card-${project.id}`)) {
                           setSelectedProjectId(project.id);
@@ -1133,22 +1154,9 @@ const DashboardDemo: React.FC = () => {
               <Button
                 size="sm"
                 onClick={() => {
-                  const newTestSuite: TestSuite = {
-                    id: Date.now().toString(),
-                    name: `Test Suite ${testSuites.length + 1}`,
-                    description: 'Automated test suite',
-                    testCases: [],
-                    projectId: selectedProjectId || '1',
-                    status: 'active'
-                  };
-                  setTestSuites(prev => [...prev, newTestSuite]);
-                  addNotification(`Test suite "${newTestSuite.name}" created successfully!`);
-
-                  if (currentGuideStep === 'create-test-suite') {
-                    setCurrentGuideStep('select-test-suite');
-                  }
+                  setShowTestSuiteCreationModal(true);
                 }}
-                disabled={!isActionAllowed('add-testsuite-button') && currentGuideStep !== 'complete'}
+                disabled={!isActionAllowed('add-testsuite-button')}
                 id="add-testsuite-button"
               >
                 <Plus className="w-4 h-4 mr-2" />
@@ -1158,52 +1166,54 @@ const DashboardDemo: React.FC = () => {
             </div>
           </div>
 
-          <div className="space-y-3">
-            {displayTestSuites.map((suite) => (
-              <div key={suite.id} className="relative">
-                <Card
-                  hover
-                  className={`cursor-pointer transition-all group ${selectedTestSuiteId === suite.id ? 'ring-2 ring-primary' : ''
-                    } ${!isActionAllowed(`testsuite-card-${suite.id}`) && currentGuideStep !== 'complete' ? 'opacity-50 cursor-not-allowed' : ''}`}
-                  onClick={() => {
-                    if (isActionAllowed(`testsuite-card-${suite.id}`)) {
-                      setSelectedTestSuiteId(suite.id);
-                      if (currentGuideStep === 'select-test-suite') {
-                        setCurrentGuideStep('run-tests');
+          <div className="relative" id="testsuite-list-container">
+            {renderHighlight('testsuite-list-container')}
+            <div className="space-y-3">
+              {displayTestSuites.map((suite) => (
+                <div key={suite.id} className="relative">
+                  <Card
+                    hover
+                    className={`cursor-pointer transition-all group ${selectedTestSuiteId === suite.id ? 'ring-2 ring-primary' : ''
+                      } ${!isActionAllowed(`testsuite-card-${suite.id}`) && currentGuideStep !== 'complete' ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    onClick={() => {
+                      if (isActionAllowed(`testsuite-card-${suite.id}`)) {
+                        setSelectedTestSuiteId(suite.id);
+                        if (currentGuideStep === 'select-test-suite') {
+                          setCurrentGuideStep('run-tests');
+                        }
                       }
-                    }
-                  }}
-                  id={`testsuite-card-${suite.id}`}
-                >
-                  <CardContent className="mt-4 p-4">
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <div className="flex items-center space-x-2 mb-2">
-                          <h4 className="font-medium">{suite.name}</h4>
-                          <span className={`w-2 h-2 rounded-full ${suite.status === 'active' ? 'bg-green-500' : 'bg-gray-400'
-                            }`} />
-                          <span className="text-xs text-foreground-muted">
-                            {suite.testCases.length} test cases
-                          </span>
+                    }}
+                    id={`testsuite-card-${suite.id}`}
+                  >
+                    <CardContent className="mt-4 p-4">
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <div className="flex items-center space-x-2 mb-2">
+                            <h4 className="font-medium">{suite.name}</h4>
+                            <span className={`w-2 h-2 rounded-full ${suite.status === 'active' ? 'bg-green-500' : 'bg-gray-400'
+                              }`} />
+                            <span className="text-xs text-foreground-muted">
+                              {suite.testCases.length} test cases
+                            </span>
+                          </div>
+                          <p className="text-sm text-foreground-muted">{suite.description}</p>
                         </div>
-                        <p className="text-sm text-foreground-muted">{suite.description}</p>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            deleteItem('testsuite', suite.id);
+                          }}
+                          className="opacity-0 group-hover:opacity-100 p-1 hover:bg-red-100 rounded"
+                          disabled={!isActionAllowed('delete') && currentGuideStep !== 'complete'}
+                        >
+                          <Trash2 className="w-4 h-4 text-red-500" />
+                        </button>
                       </div>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          deleteItem('testsuite', suite.id);
-                        }}
-                        className="opacity-0 group-hover:opacity-100 p-1 hover:bg-red-100 rounded"
-                        disabled={!isActionAllowed('delete') && currentGuideStep !== 'complete'}
-                      >
-                        <Trash2 className="w-4 h-4 text-red-500" />
-                      </button>
-                    </div>
-                  </CardContent>
-                </Card>
-                {renderHighlight(`testsuite-card-${suite.id}`)}
-              </div>
-            ))}
+                    </CardContent>
+                  </Card>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       );
@@ -1503,7 +1513,7 @@ const DashboardDemo: React.FC = () => {
 
                     // Progress guide if in create-team step
                     if (currentGuideStep === 'create-team') {
-                      setCurrentGuideStep('view-projects');
+                      setCurrentGuideStep('select-team');
                     }
                   }
                 }}
@@ -1698,7 +1708,7 @@ const DashboardDemo: React.FC = () => {
                       key={option.id}
                       className={`p-3 border rounded-lg cursor-pointer transition-all ${projectType === option.id ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/50'
                         }`}
-                      onClick={() => !isCreatingProject && setProjectType(option.id as any)}
+                      onClick={() => !isCreatingProject && setProjectType(option.id as 'manual' | 'github' | 'jira' | 'taiga')}
                     >
                       <div className="flex items-center space-x-3">
                         <Icon className="w-5 h-5 text-primary" />
@@ -2064,6 +2074,199 @@ const DashboardDemo: React.FC = () => {
     );
   };
 
+     const renderTestSuiteCreationModal = () => {
+    if (!showTestSuiteCreationModal) return null;
+
+    
+
+    const availableTestCases = filteredTestCases.filter(
+      tc => !selectedTestCasesForSuite.some(stc => stc.id === tc.id)
+    );
+
+    // --- NEW: Simplified and Robust Drag-and-Drop Handlers ---
+
+    const handleDragStart = (e: React.DragEvent<HTMLDivElement>, testCaseId: string) => {
+      // Use the browser's dataTransfer API to store the ID of the dragged item.
+      e.dataTransfer.setData('text/plain', testCaseId);
+      e.dataTransfer.effectAllowed = 'move';
+    };
+
+    const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+      e.preventDefault(); // This is crucial to allow dropping.
+    };
+
+    const handleDragEnter = (e: React.DragEvent<HTMLDivElement>, target: 'available' | 'selected') => {
+      e.preventDefault();
+      setDragOverTarget(target);
+    };
+
+    const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
+      e.preventDefault();
+      setDragOverTarget(null);
+    };
+
+    const handleDrop = (e: React.DragEvent<HTMLDivElement>, dropZone: 'available' | 'selected') => {
+      e.preventDefault();
+      setDragOverTarget(null); // Reset visual feedback
+
+      const testCaseId = e.dataTransfer.getData('text/plain');
+      const allCases = [...availableTestCases, ...selectedTestCasesForSuite];
+      const testCaseToMove = allCases.find(tc => tc.id === testCaseId);
+
+      if (!testCaseToMove) return;
+
+      if (dropZone === 'selected') {
+        // Add to selected list if not already there
+        if (!selectedTestCasesForSuite.some(tc => tc.id === testCaseToMove.id)) {
+          setSelectedTestCasesForSuite(prev => [...prev, testCaseToMove]);
+        }
+      } else { // dropZone === 'available'
+        // Remove from selected list
+        setSelectedTestCasesForSuite(prev => prev.filter(tc => tc.id !== testCaseToMove.id));
+      }
+    };
+    
+    const handleCreateTestSuite = () => {
+      if (!testSuiteName.trim() || selectedTestCasesForSuite.length === 0) return;
+
+      const newTestSuite: TestSuite = {
+        id: Date.now().toString(),
+        name: testSuiteName.trim(),
+        description: testSuiteDescription.trim() || 'A collection of related test cases.',
+        testCases: selectedTestCasesForSuite.map(tc => tc.id),
+        projectId: selectedProjectId || '1',
+        status: 'active'
+      };
+
+      setTestSuites(prev => [...prev, newTestSuite]);
+      addNotification(`Test suite "${newTestSuite.name}" created successfully!`);
+      
+      setShowTestSuiteCreationModal(false);
+      setTestSuiteName('');
+      setTestSuiteDescription('');
+      setSelectedTestCasesForSuite([]);
+
+      if (currentGuideStep === 'create-test-suite') {
+        setCurrentGuideStep('select-test-suite');
+      }
+    };
+
+    const TestCaseItem = ({ testCase }: { testCase: TestCase }) => (
+      <div
+        draggable
+        onDragStart={(e) => handleDragStart(e, testCase.id)}
+        className="p-3 bg-slate-800/60 border border-slate-700 rounded-lg cursor-grab flex items-center justify-between"
+      >
+        <div>
+          <p className="font-medium text-sm">{testCase.name}</p>
+          <p className="text-xs text-foreground-muted">{testCase.framework}</p>
+        </div>
+        <Layers className="w-4 h-4 text-primary" />
+      </div>
+    );
+
+    return (
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+        onClick={() => setShowTestSuiteCreationModal(false)}
+      >
+        <motion.div
+          initial={{ scale: 0.9, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          exit={{ scale: 0.9, opacity: 0 }}
+          className="bg-white dark:bg-[#1a1a1a] rounded-lg shadow-xl max-w-3xl w-full mx-4 max-h-[90vh] flex flex-col"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <div className="p-6 border-b border-border flex items-center justify-between">
+            <h3 className="text-lg font-semibold">Create New Test Suite</h3>
+            <button onClick={() => setShowTestSuiteCreationModal(false)} className="p-1 hover:bg-accent/10 rounded">
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+          
+          <div className="p-6 space-y-4 overflow-y-auto">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium mb-2">Test Suite Name *</label>
+                <input
+                  type="text"
+                  value={testSuiteName}
+                  onChange={(e) => setTestSuiteName(e.target.value)}
+                  placeholder="e.g., Regression Tests"
+                  className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 bg-white dark:bg-[#2a2a2a] text-black dark:text-white"
+                  autoFocus
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-2">Description</label>
+                <input
+                  value={testSuiteDescription}
+                  onChange={(e) => setTestSuiteDescription(e.target.value)}
+                  placeholder="Describe the purpose of this suite"
+                  className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 bg-white dark:bg-[#2a2a2a] text-black dark:text-white"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4">
+              {/* Available Test Cases Column */}
+              <div 
+                className="space-y-3"
+                onDragEnter={(e) => handleDragEnter(e, 'available')}
+                onDragLeave={handleDragLeave}
+                onDragOver={handleDragOver}
+                onDrop={(e) => handleDrop(e, 'available')}
+              >
+                <h4 className="font-semibold text-center">Available Test Cases</h4>
+                <div className={`p-4 border border-dashed rounded-lg space-y-2 h-[250px] overflow-y-auto transition-colors ${
+                  dragOverTarget === 'available' ? 'bg-red-500/10 border-red-500' : 'bg-slate-900/30 border-border'
+                }`}>
+                  {availableTestCases.length > 0 ? (
+                    availableTestCases.map(tc => <TestCaseItem key={tc.id} testCase={tc} />)
+                  ) : (
+                    <div className="flex items-center justify-center h-full text-sm text-foreground-muted pointer-events-none">No available cases.</div>
+                  )}
+                </div>
+              </div>
+
+              {/* Selected Test Cases Column */}
+              <div 
+                className="space-y-3"
+                onDragEnter={(e) => handleDragEnter(e, 'selected')}
+                onDragLeave={handleDragLeave}
+                onDragOver={handleDragOver}
+                onDrop={(e) => handleDrop(e, 'selected')}
+              >
+                <h4 className="font-semibold text-center">Selected for Suite</h4>
+                <div className={`p-4 border border-dashed rounded-lg space-y-2 h-[250px] overflow-y-auto transition-colors ${
+                  dragOverTarget === 'selected' ? 'bg-primary/10 border-primary' : 'bg-primary/5 border-primary/40'
+                }`}>
+                  {selectedTestCasesForSuite.length > 0 ? (
+                     selectedTestCasesForSuite.map(tc => <TestCaseItem key={tc.id} testCase={tc} />)
+                  ) : (
+                    <div className="flex items-center justify-center h-full text-sm text-foreground-muted pointer-events-none">
+                      Drag & drop test cases here.
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="p-6 border-t border-border mt-auto">
+            <div className="flex items-center justify-end space-x-3">
+              <Button variant="secondary" onClick={() => setShowTestSuiteCreationModal(false)}>Cancel</Button>
+              <Button onClick={handleCreateTestSuite} disabled={!testSuiteName.trim() || selectedTestCasesForSuite.length === 0}>Create Test Suite</Button>
+            </div>
+          </div>
+        </motion.div>
+      </motion.div>
+    );
+  };
+
   return (
     <div className={`h-[600px] border border-border rounded-lg overflow-hidden flex ${theme === 'dark' ? 'bg-gray-900 text-white' : 'bg-white text-black'}`}>
       {renderSidebar()}
@@ -2084,6 +2287,7 @@ const DashboardDemo: React.FC = () => {
         {showProjectCreationModal && renderProjectCreationModal()}
         {showStoryCreationModal && renderStoryCreationModal()}
         {showTestCaseCreationModal && renderTestCaseCreationModal()}
+        {showTestSuiteCreationModal && renderTestSuiteCreationModal()}
       </AnimatePresence>
     </div>
   );

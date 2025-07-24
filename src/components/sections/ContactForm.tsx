@@ -2,9 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { 
-  Send, 
-  CheckCircle, 
+import {
+  Send,
+  CheckCircle,
   Mail,
   Sparkles,
   Shield,
@@ -34,7 +34,7 @@ const ContactForm: React.FC = () => {
         setLastSubmitTime(storedTime);
       }
     }
-  }, []);
+  }, [COOLDOWN_PERIOD]);
 
   const validateEmail = (email: string) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -92,7 +92,7 @@ Thank you!`,
       });
 
       const result = await response.json();
-      
+
       if (result.success) {
         setIsSubmitted(true);
         setLastSubmitTime(now);
@@ -150,7 +150,7 @@ Thank you!`,
                   >
                     <CheckCircle className="w-20 h-20 text-white mx-auto" />
                   </motion.div>
-                  
+
                   <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -197,13 +197,13 @@ Thank you!`,
               <Sparkles className="w-5 h-5 text-accent" />
               <span className="text-sm font-medium text-accent">Start Your Testing Revolution</span>
             </div>
-            
+
             <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6">
               Request <span className="gradient-text">Demo Access</span>
             </h2>
-            
+
             <p className="text-xl text-foreground-muted max-w-3xl mx-auto leading-relaxed">
-              Get personalized access to Arxitest and see how AI-powered testing 
+              Get personalized access to Arxitest and see how AI-powered testing
               can transform your development workflow.
             </p>
           </motion.div>

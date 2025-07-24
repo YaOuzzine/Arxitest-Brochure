@@ -2,10 +2,11 @@
 
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { ChevronDown, Rocket, Sparkles } from 'lucide-react';
+import { ChevronDown, Rocket } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import TypewriterText from '@/components/animations/TypewriterText';
 import ArxitestLogo from '@/assets/images/logo-icon-w.png';
+
 
 
 const HeroSection: React.FC = () => {
