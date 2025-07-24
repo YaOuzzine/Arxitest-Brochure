@@ -64,7 +64,7 @@ const DemoJourney: React.FC = () => {
             </h2>
 
             <p className="text-xl text-foreground-muted max-w-3xl mx-auto leading-relaxed">
-              Take a guided journey through Arxitest's complete workflow, from project connection
+              Take a guided journey through Arxitest&apos;s complete workflow, from project connection
               to results delivery, all powered by artificial intelligence.
             </p>
           </motion.div>

@@ -205,7 +205,7 @@ const DashboardDemo: React.FC = () => {
       id: 'start',
       target: 'teams-tab',
       title: 'Welcome to Arxitest Demo!',
-      description: 'This interactive demo will guide you through Arxitest\'s complete workflow. Let\'s start by creating a team.',
+      description: 'This interactive demo will guide you through Arxitest and its complete workflow. Let\'s start by creating a team.',
       action: 'click',
       highlightElement: 'teams-tab',
       nextStep: 'create-team',
@@ -712,7 +712,7 @@ const DashboardDemo: React.FC = () => {
         className="h-15 w-auto"
       />
           <p className="text-xs text-foreground-muted">
-            Interactive demo to familiarize users with Arxitest's workflow
+            Interactive demo to familiarize users with Arxitest and its workflow
           </p>
         </div>
 

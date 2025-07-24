@@ -159,7 +159,7 @@ Thank you!`,
                   >
                     <h2 className="text-3xl font-bold text-white">Demo Request Sent!</h2>
                     <p className="text-white/90 text-lg">
-                      Thank you for your interest in Arxitest. We've received your demo request and will contact you within 24 hours to schedule your personalized demonstration.
+                      Thank you for your interest in Arxitest. We have received your demo request and will contact you within 24 hours to schedule your personalized demonstration.
                     </p>
                     <div className="pt-4">
                       <p className="text-white/80 text-sm">
